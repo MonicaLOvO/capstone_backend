@@ -1,4 +1,4 @@
-export class PageinationRespondModel<T> {
+export class PaginatedDataRespondModel<T> {
     constructor(data: T | null = null, message?: string) {
         this.Data = data;
         this.Message = message ?? null;
