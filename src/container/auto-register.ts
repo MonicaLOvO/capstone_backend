@@ -100,54 +100,61 @@ function findFolders(dir: string, folderName: string): string[] {
  */
 async function registerClassFromFile(filePath: string, basePath: string): Promise<void> {
   try {
-    // Convert to module path relative to __dirname (where this file is located)
-    // This ensures imports work correctly in both dev and production
-    let relativePath = path.relative(__dirname, filePath)
+    // Convert to module path - use absolute path for reliable loading across platforms
+    const relativePath = path.relative(__dirname, filePath)
       .replace(/\\/g, "/")
       .replace(/\.ts$/, "")
       .replace(/\.js$/, "");
+    const modulePath = relativePath.startsWith("..") ? relativePath : "./" + relativePath;
+    const absolutePath = path.resolve(__dirname, modulePath);
     
-    // Ensure path starts with ./ or ../ (don't double-prefix)
-    const modulePath = relativePath.startsWith("..") 
-      ? relativePath 
-      : "./" + relativePath;
+    // Use require for reliable module loading (works with CommonJS)
+    const module = require(absolutePath);
     
-    // Dynamic import - path is relative to this file's location
-    const module = await import(modulePath);
-    
-    // Find all exports that are classes
+    // First pass: collect all class exports
+    const classExports: Array<{ name: string; cls: new (...args: unknown[]) => unknown }> = [];
     for (const exportName in module) {
       const exported = module[exportName];
-      
-      // Check if it's a class/constructor function (interfaces compile to nothing, so they won't match)
       if (typeof exported === "function" && exported.prototype) {
-        // Check if it has paramtypes metadata (indicates it's been decorated)
-        // This works because @injectable decorator sets this metadata
         const paramTypes = Reflect.getMetadata("design:paramtypes", exported);
-        
-        // If it has metadata, it's likely decorated with @injectable
-        // OR if the class name ends with Repository, Service, or Controller, assume it should be registered
-        const isLikelyInjectable = paramTypes !== undefined || 
-                                   exportName.endsWith("Repository") || 
-                                   exportName.endsWith("Service") ||
-                                   exportName.endsWith("Controller");
-        
+        const isLikelyInjectable =
+          paramTypes !== undefined ||
+          exportName.endsWith("Repository") ||
+          exportName.endsWith("Service") ||
+          exportName.endsWith("Controller");
         if (isLikelyInjectable) {
-          const interfaceToken = "I" + exportName;
-          
-          if (exportName.endsWith("Service") || exportName.endsWith("Repository")) {
-            // Register with interface token (for @inject("IInventoryItemService"))
-            container.registerSingleton(interfaceToken, exported);
-            // Also register class token -> interface token (for @inject(InventoryItemRepository))
-            container.register(exported as any, { useToken: interfaceToken });
-            // eslint-disable-next-line no-console
-            console.log(`✓ Auto-registered: ${interfaceToken} -> ${exportName}`);
-          } else {
-            container.registerSingleton(exportName, exported);
-            // eslint-disable-next-line no-console
-            console.log(`✓ Auto-registered: ${exportName}`);
-          }
+          classExports.push({ name: exportName, cls: exported });
         }
+      }
+    }
+    
+    // Second pass: register implementations and abstract class -> implementation bindings
+    for (const { name: exportName, cls: exported } of classExports) {
+      const interfaceToken = "I" + exportName;
+      
+      if (exportName.endsWith("Service") || exportName.endsWith("Repository")) {
+        // Abstract class (IX) -> Implementation (X): for @inject(IX) and @inject(IX.name)
+        if (exportName.startsWith("I")) {
+          const implementationName = exportName.slice(1);
+          const implementation = module[implementationName];
+          if (implementation && typeof implementation === "function") {
+            container.registerSingleton(exported, implementation);
+            // Also register string token (IX.name) for @inject(IInventoryItemService.name)
+            container.registerSingleton(exported.name, implementation);
+            // eslint-disable-next-line no-console
+            console.log(`✓ Auto-registered: ${exportName} -> ${implementationName}`);
+          }
+        } else {
+          // Implementation (X): register string token and class alias
+          container.registerSingleton(interfaceToken, exported);
+          container.register(exported, { useToken: interfaceToken });
+          // eslint-disable-next-line no-console
+          console.log(`✓ Auto-registered: ${interfaceToken} -> ${exportName}`);
+        }
+      } else {
+        container.registerSingleton(exportName, exported);
+        // eslint-disable-next-line no-console
+        console.log(`✓ Auto-registered: ${exportName}`);
       }
     }
   } catch (error) {

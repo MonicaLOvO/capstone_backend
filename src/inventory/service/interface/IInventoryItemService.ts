@@ -1,5 +1,6 @@
 import { InventoryItemModel } from "../../model/InventoryItemModel";
 
-export interface IInventoryItemService {
-    GetInventoryItems(): Promise<InventoryItemModel[]>;
+export abstract class IInventoryItemService {
+    abstract GetInventoryItems(): Promise<InventoryItemModel[]>;
+    abstract GetInventoryItemById(id: string): Promise<InventoryItemModel | null>;
 }

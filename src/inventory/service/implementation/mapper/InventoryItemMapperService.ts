@@ -3,8 +3,10 @@ import { InventoryItem } from "../../../entity/Inventory-item";
 import { InventoryItemModel } from "../../../model/InventoryItemModel";
 import { IInventoryItemMapperService } from "../../interface/mapper/IInventoryItemMapperService";
 
+export { IInventoryItemMapperService };
+
 @injectable()
-export class InventoryItemMapperService implements IInventoryItemMapperService {
+export class InventoryItemMapperService extends IInventoryItemMapperService {
 
     MapEntityToModle(entity: InventoryItem): InventoryItemModel {
         const model = Object.assign<InventoryItemModel, Partial<InventoryItemModel>>(new InventoryItemModel(), {

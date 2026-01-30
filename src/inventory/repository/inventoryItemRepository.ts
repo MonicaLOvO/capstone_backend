@@ -22,4 +22,8 @@ export class InventoryItemRepository {
 
     return await query;
   }
+
+  async GetInventoryItemById(id: string): Promise<InventoryItem | null> {
+    return await this.repository.findOne({ where: { Id: id, DeletedAt: IsNull() } });
+  }
 }

@@ -8,7 +8,7 @@ import { DataRespondModel } from "../../common/model/DataRespondModel";
 @injectable()
 export class InventoryController {
     constructor(
-        @inject("IInventoryItemService") private readonly inventoryItemService: IInventoryItemService
+        @inject(IInventoryItemService.name) private readonly inventoryItemService: IInventoryItemService
     ) {}
 
     @Get("/list")
