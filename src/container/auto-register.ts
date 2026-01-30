@@ -29,21 +29,42 @@ async function registerFromFolder(basePath: string, folderName: string): Promise
   const folders = findFolders(basePath, folderName);
   
   for (const folder of folders) {
-    const files = fs.readdirSync(folder)
-      .filter(file => {
-        // Look for both .ts (source) and .js (compiled) files
-        // Skip declaration files and source maps
-        return (file.endsWith(".ts") || file.endsWith(".js")) && 
-               !file.endsWith(".d.ts") && 
-               !file.endsWith(".d.ts.map") && 
-               !file.endsWith(".js.map");
-      });
+    const files = findFilesRecursive(folder, (file) =>
+      (file.endsWith(".ts") || file.endsWith(".js")) &&
+      !file.endsWith(".d.ts") &&
+      !file.endsWith(".d.ts.map") &&
+      !file.endsWith(".js.map")
+    );
     
-    for (const file of files) {
-      const filePath = path.join(folder, file);
+    for (const filePath of files) {
       await registerClassFromFile(filePath, basePath);
     }
   }
+}
+
+/**
+ * Recursively finds all files matching the predicate in a directory
+ */
+function findFilesRecursive(dir: string, predicate: (filename: string) => boolean): string[] {
+  const results: string[] = [];
+  
+  if (!fs.existsSync(dir)) {
+    return results;
+  }
+  
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    
+    if (entry.isDirectory()) {
+      results.push(...findFilesRecursive(fullPath, predicate));
+    } else if (entry.isFile() && predicate(entry.name)) {
+      results.push(fullPath);
+    }
+  }
+  
+  return results;
 }
 
 /**
@@ -98,9 +119,8 @@ async function registerClassFromFile(filePath: string, basePath: string): Promis
     for (const exportName in module) {
       const exported = module[exportName];
       
-      // Check if it's a class/constructor function
-      // Skip if it's an interface (interfaces are functions in JS but don't have prototype)
-      if (typeof exported === "function" && exported.prototype && exportName[0] !== "I") {
+      // Check if it's a class/constructor function (interfaces compile to nothing, so they won't match)
+      if (typeof exported === "function" && exported.prototype) {
         // Check if it has paramtypes metadata (indicates it's been decorated)
         // This works because @injectable decorator sets this metadata
         const paramTypes = Reflect.getMetadata("design:paramtypes", exported);
@@ -113,20 +133,19 @@ async function registerClassFromFile(filePath: string, basePath: string): Promis
                                    exportName.endsWith("Controller");
         
         if (isLikelyInjectable) {
-          // Find the corresponding interface (starts with 'I' + className)
-          const interfaceName = "I" + exportName;
-          const interfaceToken = module[interfaceName] ? interfaceName : undefined;
+          const interfaceToken = "I" + exportName;
           
-          if (interfaceToken) {
-            // Register as singleton with the interface token
+          if (exportName.endsWith("Service") || exportName.endsWith("Repository")) {
+            // Register with interface token (for @inject("IInventoryItemService"))
             container.registerSingleton(interfaceToken, exported);
+            // Also register class token -> interface token (for @inject(InventoryItemRepository))
+            container.register(exported as any, { useToken: interfaceToken });
             // eslint-disable-next-line no-console
             console.log(`✓ Auto-registered: ${interfaceToken} -> ${exportName}`);
           } else {
-            // If no interface found, register with class name as token
             container.registerSingleton(exportName, exported);
             // eslint-disable-next-line no-console
-            console.log(`✓ Auto-registered: ${exportName} (no interface found)`);
+            console.log(`✓ Auto-registered: ${exportName}`);
           }
         }
       }

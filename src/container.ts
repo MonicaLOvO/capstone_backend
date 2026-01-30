@@ -13,13 +13,10 @@ export async function setupContainer(): Promise<void> {
   container.registerInstance("DataSource", AppDataSource);
   
   // Automatically discover and register all services and repositories
-  // This scans all folders named "service" and "repository" recursively
   await autoRegisterServices();
   
   // Setup routing-controllers to use tsyringe container
   setupRoutingControllersContainer();
-  
-  // Any manual registrations can go here if needed
 }
 
 /**
