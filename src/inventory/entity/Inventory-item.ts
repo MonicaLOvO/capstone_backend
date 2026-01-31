@@ -30,7 +30,7 @@ export class InventoryItem extends Tracking {
     Category?: string;
 
     @Column({ type: "varchar", length: 255 , nullable: true})
-    location?: string;
+    Location?: string;
 
     @Column({ type: "varchar", length: 255 , unique: true})
     Sku!: string;
@@ -38,3 +38,16 @@ export class InventoryItem extends Tracking {
     @Column({ type: "enum", enum: InventoryItemStatusEnum })
     Status!: InventoryItemStatusEnum;
 }
+
+export const InventoryItemColumns = new Map<string, {columnName: string, columnType: string}>([
+    ["ItemName", {columnName: "ii.ItemName", columnType: "string"}],
+    ["Description", {columnName: "ii.Description", columnType: "string"}],
+    ["Quantity", {columnName: "ii.Quantity", columnType: "number"}],
+    ["UnitPrice", {columnName: "ii.UnitPrice", columnType: "number"}],
+    ["QrCode", {columnName: "ii.QrCode", columnType: "string"}],
+    ["ImageUrl", {columnName: "ii.ImageUrl", columnType: "string"}],
+    ["Category", {columnName: "ii.Category", columnType: "string"}],
+    ["Location", {columnName: "ii.Location", columnType: "string"}],
+    ["Sku", {columnName: "ii.Sku", columnType: "string"}],
+    ["Status", {columnName: "ii.Status", columnType: "enum"}],
+]);

@@ -18,10 +18,12 @@ export class InventoryItemMapperService extends IInventoryItemMapperService {
             QrCodeValue: entity.QrCode ?? "",
             ImageUrl: entity.ImageUrl ?? "",
             Category: entity.Category ?? "",
-            Location: entity.location ?? "",
+            Location: entity.Location ?? "",
             Sku: entity.Sku,
             Status: entity.Status,
         });
         return model;
     }
+
+   
 }
