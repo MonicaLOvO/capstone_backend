@@ -13,7 +13,8 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+// Note: Do NOT add express.json() here - routing-controllers adds its own body parser.
+// Having both causes "stream is not readable" because the stream gets consumed twice.
 
 const PORT = process.env.PORT || 4000;
 
@@ -43,8 +44,10 @@ AppDataSource.initialize()
       cors: true,
       // Enable validation
       validation: true,
-      // Default error handler
-      defaultErrorHandler: false,
+      // Convert string numbers to numbers before validation (fixes @IsNumber() when client sends "10" instead of 10)
+      plainToClassTransformOptions: { enableImplicitConversion: true },
+      // Enable default error handler to return validation errors with details
+      defaultErrorHandler: true,
     });
     
     app.listen(PORT, () => {

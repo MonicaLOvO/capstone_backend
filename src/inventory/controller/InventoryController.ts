@@ -34,6 +34,7 @@ export class InventoryController {
 
     @Put("/:id")
     async updateInventoryItem(@Param("id") id: string, @Body() dto: UpsertInventoryItemDto) {
+        dto.Id = id;
         const data = await this.inventoryItemService.UpdateInventoryItem(dto);
         return new DataRespondModel<string>(data);
     }
