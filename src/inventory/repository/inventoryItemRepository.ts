@@ -68,7 +68,7 @@ export class InventoryItemRepository {
       Category: dto.Category ?? "",
       Location: dto.Location ?? "",
       Sku: dto.Sku ?? "",
-      Status: dto.Status ?? InventoryItemStatusEnum.AVAILABLE
+      Status: dto.Status ?? InventoryItemStatusEnum.InStock
     });
 
     const newEntity = await this.repository.save(newItem);
@@ -95,7 +95,7 @@ export class InventoryItemRepository {
       Category: dto.Category ?? "",
       Location: dto.Location ?? "",
       Sku: dto.Sku ?? "",
-      Status: dto.Status ?? InventoryItemStatusEnum.AVAILABLE
+      Status: dto.Status ?? InventoryItemStatusEnum.InStock
     });
 
     const result = await this.repository.save(target);

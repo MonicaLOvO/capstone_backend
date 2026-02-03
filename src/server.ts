@@ -12,7 +12,11 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:3000",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 // Note: Do NOT add express.json() here - routing-controllers adds its own body parser.
 // Having both causes "stream is not readable" because the stream gets consumed twice.
 
