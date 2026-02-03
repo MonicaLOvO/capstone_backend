@@ -1,11 +1,13 @@
-import { Column, Entity, Generated, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Generated, PrimaryColumn, PrimaryGeneratedColumn  } from "typeorm";
 import { Tracking } from "../../common/entity/Tracking";
 import { InventoryItemStatusEnum } from "../enum/InventoryItemStatusEnum";
 
 @Entity("inventory_items")
 export class InventoryItem extends Tracking {
-    @PrimaryColumn({ type: "varchar", length: 36 })
-    @Generated("uuid")
+    
+    // @PrimaryColumn({ type: "varchar", length: 36 })
+    // @Generated("uuid")
+    @PrimaryGeneratedColumn("uuid")
     Id!: string;
 
     @Column({ type: "varchar", length: 255 })
