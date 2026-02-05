@@ -11,16 +11,7 @@ export class User {
   @Column({ type: "varchar", length: 255, unique: true })
   email!: string;
 
-  @Column({ type: "boolean", default: false })
-  Active!: boolean;
-
-  @Column({ type: "boolean", default: false })
-  EmailVerified!: boolean;
-
-  @CreateDateColumn()
-  createdAt!: Date;
-
-  @UpdateDateColumn()
-  updatedAt!: Date;
+  @Column({ type: "datetime", nullable: true })
+  DeletedAt?: Date | null;
 }
 

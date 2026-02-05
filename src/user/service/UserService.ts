@@ -1,20 +1,14 @@
 import { injectable, inject } from "tsyringe";
-import { UserRepository, IUserRepository } from "../repository/UserRepository";
+import { UserRepository } from "../repository/UserRepository";
 import { User } from "../entity/User";
+import { IUserService } from "./interface/IUserService";
 
-export interface IUserService {
-  getAllUsers(): Promise<User[]>;
-  getUserById(id: number): Promise<User | null>;
-  getUserByEmail(email: string): Promise<User | null>;
-  createUser(userData: { name: string; email: string }): Promise<User>;
-  updateUser(id: number, userData: Partial<User>): Promise<User | null>;
-  deleteUser(id: number): Promise<boolean>;
-}
+export { IUserService };
 
 @injectable()
 export class UserService implements IUserService {
   constructor(
-    @inject("IUserRepository") private userRepository: IUserRepository
+    @inject(UserRepository) private userRepository: UserRepository
   ) {}
 
   async getAllUsers(): Promise<User[]> {
@@ -38,8 +32,6 @@ export class UserService implements IUserService {
 
     return await this.userRepository.create({
       ...userData,
-      Active: true,
-      EmailVerified: false,
     });
   }
 

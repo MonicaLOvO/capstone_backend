@@ -1,5 +1,5 @@
 import { InventoryItemStatusEnum } from "../enum/InventoryItemStatusEnum";
-import { OrderItem } from "../../order/entity/OrderItem";
+import { OrderItemModel } from "../../order/model/OrderItemModel";
 
 export class InventoryItemModel {
     Id!: string;
@@ -13,5 +13,6 @@ export class InventoryItemModel {
     Location?: string;
     Sku?: string;
     Status?: InventoryItemStatusEnum;
-    OrdersId?: OrderItem[];
+    OrderItems?: OrderItemModel[];
+    LowestStockLevel?: number;
 }

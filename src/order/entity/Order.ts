@@ -27,7 +27,7 @@ export class Order extends Tracking {
     @Column({ type: "decimal", precision: 10, scale: 2 })
     TotalPrice!: number;
 
-    //CustomerId for foreign key to user table when user finished
+    //CustomerId if needed
 }
 
 export const OrderColumns = new Map<string, {columnName: string, columnType: string}>([

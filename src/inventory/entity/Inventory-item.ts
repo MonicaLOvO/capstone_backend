@@ -38,6 +38,9 @@ export class InventoryItem extends Tracking {
     @Column({ type: "enum", enum: InventoryItemStatusEnum })
     Status!: InventoryItemStatusEnum;
 
+    @Column({ type: "int", nullable: true })
+    LowestStockLevel?: number;
+
     @OneToMany(() => OrderItem, (orderItem) => orderItem.InventoryItem)
     OrderItems!: OrderItem[];
 }
@@ -54,4 +57,5 @@ export const InventoryItemColumns = new Map<string, {columnName: string, columnT
     ["Sku", {columnName: "ii.Sku", columnType: "string"}],
     ["Status", {columnName: "ii.Status", columnType: "enum"}],
     ["OrdersId", {columnName: "ii.OrdersId", columnType: "array"}],
+    ["LowestStockLevel", {columnName: "ii.LowestStockLevel", columnType: "number"}],
 ]);

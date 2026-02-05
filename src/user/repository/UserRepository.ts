@@ -2,15 +2,9 @@ import { injectable } from "tsyringe";
 import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
 import { User } from "../entity/User";
+import { IUserRepository } from "./interface/IUserRepository";
 
-export interface IUserRepository {
-  findAll(): Promise<User[]>;
-  findById(id: number): Promise<User | null>;
-  findByEmail(email: string): Promise<User | null>;
-  create(userData: Partial<User>): Promise<User>;
-  update(id: number, userData: Partial<User>): Promise<User | null>;
-  delete(id: number): Promise<boolean>;
-}
+export { IUserRepository };
 
 @injectable()
 export class UserRepository implements IUserRepository {
@@ -38,7 +32,7 @@ export class UserRepository implements IUserRepository {
   }
 
   async update(id: number, userData: Partial<User>): Promise<User | null> {
-    const user = await this.findById(id);
+    const user = await this.repository.findOne({ where: { id } });
     if (!user) {
       return null;
     }

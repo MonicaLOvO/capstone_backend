@@ -1,4 +1,4 @@
-import { OrderItem } from "../entity/OrderItem";
+import { OrderItemModel } from "./OrderItemModel";
 import { OrderStatusEnum } from "../enum/OrderStatusEnum";
 
 export class OrderModel {
@@ -7,6 +7,7 @@ export class OrderModel {
     OrderDate?: Date;
     OrderStatus?: OrderStatusEnum;
     OrderCompletedDate?: Date;
-    OrderItemsId?: OrderItem[];
+    OrderItems?: OrderItemModel[];
     TotalPrice?: number;
+    
 }

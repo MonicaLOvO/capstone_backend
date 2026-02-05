@@ -1,7 +1,7 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Tracking } from "../../common/entity/Tracking";
-import { Order } from "./order";
 import { InventoryItem } from "../../inventory/entity/Inventory-item";
+import { Order } from "./Order";
 
 @Entity("order_items")
 export class OrderItem extends Tracking {
@@ -9,12 +9,12 @@ export class OrderItem extends Tracking {
     @PrimaryGeneratedColumn("uuid")
     Id!: string;
 
-    @Column({ type: "varchar", length: 255 })
     @ManyToOne(() => Order, (order) => order.OrderItems)
+    @JoinColumn({ name: "OrderId" })
     Order!: Order;
 
-    @Column({ type: "varchar", length: 255 })
     @ManyToOne(() => InventoryItem, (inventoryItem) => inventoryItem.OrderItems)
+    @JoinColumn({ name: "InventoryItemId" })
     InventoryItem!: InventoryItem;
 
     @Column({ type: "int", default: 1 })

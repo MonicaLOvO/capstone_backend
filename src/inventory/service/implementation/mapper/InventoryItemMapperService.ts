@@ -21,6 +21,7 @@ export class InventoryItemMapperService extends IInventoryItemMapperService {
             Location: entity.Location ?? "",
             Sku: entity.Sku,
             Status: entity.Status,
+            LowestStockLevel: entity.LowestStockLevel ?? 0,
         });
         return model;
     }

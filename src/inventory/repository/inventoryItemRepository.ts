@@ -68,14 +68,11 @@ export class InventoryItemRepository {
       Category: dto.Category ?? "",
       Location: dto.Location ?? "",
       Sku: dto.Sku ?? "",
-      Status: dto.Status ?? InventoryItemStatusEnum.InStock
+      Status: dto.Status ?? InventoryItemStatusEnum.InStock,
+      LowestStockLevel: dto.LowestStockLevel ?? 0
     });
-
-    const newEntity = await this.repository.save(newItem);
-    if (!newEntity) {
-      throw new Error("Failed to create inventory item");
-    }
-    return newEntity.Id;
+    const result = await this.repository.save(newItem);
+    return result?.Id ?? "";
   }
 
   async UpdateInventoryItem(dto: UpsertInventoryItemDto): Promise<string> {
@@ -95,7 +92,8 @@ export class InventoryItemRepository {
       Category: dto.Category ?? "",
       Location: dto.Location ?? "",
       Sku: dto.Sku ?? "",
-      Status: dto.Status ?? InventoryItemStatusEnum.InStock
+      Status: dto.Status ?? InventoryItemStatusEnum.InStock,
+      LowestStockLevel: dto.LowestStockLevel ?? 0
     });
 
     const result = await this.repository.save(target);

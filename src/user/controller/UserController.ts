@@ -21,29 +21,7 @@ export class UserController {
     @inject("IUserService") private userService: IUserService
   ) {}
 
-  @Get()
-  async getAllUsers(): Promise<User[]> {
-    try {
-      return await this.userService.getAllUsers();
-    } catch (error) {
-      throw new Error("Failed to fetch users");
-    }
-  }
-
-  @Get("/:id")
-  async getUserById(@Param("id") id: number, @QueryParam("email") email: string): Promise<User> {
-    if (isNaN(id)) {
-      throw new Error("Invalid user ID");
-    }
-
-    const user = await this.userService.getUserById(id);
-    if (!user) {
-      throw new Error("User not found");
-    }
-
-    return user;
-  }
-
+  
   @Post()
   @HttpCode(201)
   async createUser(@Body() body: { name: string; email: string }): Promise<User> {

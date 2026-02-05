@@ -44,6 +44,10 @@ export class UpsertInventoryItemDto {
     @IsOptional()
     Sku?: string;
 
+    @IsNumber()
+    @IsOptional()
+    LowestStockLevel?: number;
+
     @IsEnum(InventoryItemStatusEnum)
     @IsOptional()
     Status?: InventoryItemStatusEnum;
