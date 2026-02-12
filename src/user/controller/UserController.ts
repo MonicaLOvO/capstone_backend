@@ -9,7 +9,6 @@ import {
   Body,
   HttpCode,
   OnUndefined,
-  QueryParam,
 } from "routing-controllers";
 import { UserService, IUserService } from "../service/UserService";
 import { User } from "../entity/User";
@@ -39,35 +38,35 @@ export class UserController {
     }
   }
 
-  @Put("/:id")
-  async updateUser(
-    @Param("id") id: number,
-    @Body() body: Partial<User>
-  ): Promise<User> {
-    if (isNaN(id)) {
-      throw new Error("Invalid user ID");
-    }
+  // @Put("/:id")
+  // async updateUser(
+  //   @Param("id") id: number,
+  //   @Body() body: Partial<User>
+  // ): Promise<User> {
+  //   if (isNaN(id)) {
+  //     throw new Error("Invalid user ID");
+  //   }
 
-    const user = await this.userService.updateUser(id, body);
-    if (!user) {
-      throw new Error("User not found");
-    }
+  //   const user = await this.userService.updateUser(id, body);
+  //   if (!user) {
+  //     throw new Error("User not found");
+  //   }
 
-    return user;
-  }
+  //   return user;
+  // }
 
-  @Delete("/:id")
-  @HttpCode(204)
-  @OnUndefined(204)
-  async deleteUser(@Param("id") id: number): Promise<void> {
-    if (isNaN(id)) {
-      throw new Error("Invalid user ID");
-    }
+  // @Delete("/:id")
+  // @HttpCode(204)
+  // @OnUndefined(204)
+  // async deleteUser(@Param("id") id: number): Promise<void> {
+  //   if (isNaN(id)) {
+  //     throw new Error("Invalid user ID");
+  //   }
 
-    const deleted = await this.userService.deleteUser(id);
-    if (!deleted) {
-      throw new Error("User not found");
-    }
-  }
+  //   const deleted = await this.userService.deleteUser(id);
+  //   if (!deleted) {
+  //     throw new Error("User not found");
+  //   }
+  // }
 }
 

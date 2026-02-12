@@ -4,7 +4,7 @@ import { OrderModel } from "../../model/OrderModel";
 import { Order } from "../../entity/Order";
 import { OrderRepository } from "../../repository/OrderRepository";
 import { IOrderMapperService } from "../interface/mapper/IOrderMapperService";
-import { OrderDto } from "../../dto/OrderDto";
+import { OrderDto } from "../../dto/UpsertOrderDto";
 export { IOrderService };
 
 @injectable()

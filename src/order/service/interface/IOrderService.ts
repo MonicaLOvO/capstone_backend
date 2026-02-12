@@ -1,5 +1,5 @@
 import { OrderModel } from "../../model/OrderModel";
-import { OrderDto } from "../../dto/OrderDto";
+import { OrderDto } from "../../dto/UpsertOrderDto";
 
 export abstract class IOrderService {
     abstract GetOrders(query?: Record<string, string>): Promise<[OrderModel[], number]>;

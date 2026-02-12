@@ -3,4 +3,5 @@ export class OrderItemModel {
     OrderId!: string;
     InventoryItemId!: string;
     Quantity!: number;
+    UnitPrice!: number;
 }

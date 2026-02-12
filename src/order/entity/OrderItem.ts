@@ -20,6 +20,9 @@ export class OrderItem extends Tracking {
     @Column({ type: "int", default: 1 })
     Quantity!: number;
 
+    @Column({ type: "decimal", precision: 10, scale: 2, default: 0 })
+    UnitPrice!: number;
+
 }
 
 export const OrderItemColumns = new Map<string, {columnName: string, columnType: string}>([
@@ -27,4 +30,5 @@ export const OrderItemColumns = new Map<string, {columnName: string, columnType:
     ["OrderId", {columnName: "oi.OrderId", columnType: "string"}],
     ["InventoryItemId", {columnName: "oi.InventoryItemId", columnType: "string"}],
     ["Quantity", {columnName: "oi.Quantity", columnType: "number"}],
+    ["UnitPrice", {columnName: "oi.UnitPrice", columnType: "number"}],
 ]);

@@ -1,7 +1,7 @@
 
-import { IsArray, IsDate, IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsArray, IsDate, IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
 import { OrderStatusEnum } from "../enum/OrderStatusEnum";
-import { OrderItem } from "../entity/OrderItem";
+import { UpsertOrderItemDto } from "./UpsertOrderItemDto";
 
 export class OrderDto {
 
@@ -18,8 +18,8 @@ export class OrderDto {
     OrderDate?: Date;
 
     @IsEnum(OrderStatusEnum)
-    @IsOptional()
-    Status?: OrderStatusEnum;
+    @IsNotEmpty({ message: "OrderStatus is required" }) 
+    OrderStatus!: OrderStatusEnum;
 
     @IsDate()
     @IsOptional()
@@ -27,10 +27,6 @@ export class OrderDto {
 
     @IsArray()
     @IsOptional()
-    OrderItemsId?: OrderItem[];
-
-    @IsNumber()
-    @IsOptional()
-    TotalPrice?: number;
+    OrderItems?: UpsertOrderItemDto[];
 
 }

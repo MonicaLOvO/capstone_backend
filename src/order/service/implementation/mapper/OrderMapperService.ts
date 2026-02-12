@@ -16,18 +16,18 @@ export class OrderMapperService extends IOrderMapperService {
             OrderDate: entity.OrderDate ?? new Date(),
             OrderStatus: entity.OrderStatus,
             OrderCompletedDate: entity.OrderCompletedDate ?? new Date(),
-            TotalPrice: entity.TotalPrice,
-            OrderItems: entity.OrderItems?.map(orderItem => this.MapEntityToOrderItemModel(orderItem)) ?? [],
+            OrderItems: entity.OrderItems?.map(orderItem => this.MapEntityToOrderItemModel(orderItem, entity.Id)) ?? [],
         });
         return model;
     }
 
-    MapEntityToOrderItemModel(entity: OrderItem): OrderItemModel {
+    MapEntityToOrderItemModel(entity: OrderItem, orderId?: string): OrderItemModel {
         const model = Object.assign<OrderItemModel, Partial<OrderItemModel>>(new OrderItemModel(), {
             Id: entity.Id,
-            OrderId: entity.Order?.Id ?? "",
+            OrderId: orderId ?? entity.Order?.Id ?? "",
             InventoryItemId: entity.InventoryItem?.Id ?? "",
             Quantity: entity.Quantity,
+            UnitPrice: entity.UnitPrice ?? 0,
         });
         return model;
     }

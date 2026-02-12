@@ -21,11 +21,8 @@ export class Order extends Tracking {
     @Column({ type: "datetime", nullable: true })
     OrderCompletedDate?: Date;
 
-    @OneToMany(() => OrderItem, (orderItem) => orderItem.Order)
+    @OneToMany(() => OrderItem, (orderItem) => orderItem.Order, { cascade: ["insert", "update"] })
     OrderItems!: OrderItem[];
-
-    @Column({ type: "decimal", precision: 10, scale: 2 })
-    TotalPrice!: number;
 
     //CustomerId if needed
 }
@@ -37,5 +34,4 @@ export const OrderColumns = new Map<string, {columnName: string, columnType: str
     ["OrderStatus", {columnName: "o.OrderStatus", columnType: "enum"}],
     ["OrderCompletedDate", {columnName: "o.OrderCompletedDate", columnType: "datetime"}],
     ["OrderItemsId", {columnName: "o.OrderItemsId", columnType: "array"}],
-    ["TotalPrice", {columnName: "o.TotalPrice", columnType: "number"}],
 ]);

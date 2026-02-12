@@ -8,6 +8,5 @@ export class OrderModel {
     OrderStatus?: OrderStatusEnum;
     OrderCompletedDate?: Date;
     OrderItems?: OrderItemModel[];
-    TotalPrice?: number;
     
 }
