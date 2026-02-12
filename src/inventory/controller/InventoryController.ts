@@ -20,7 +20,7 @@ export class InventoryController {
         return new PaginatedDataRespondModel<InventoryItemModel[]>(data, total, query["Page"], query["PageSize"]);
     }
 
-    @Get("/:id")
+    @Get("/:id") 
     async getInventoryItemById(@Param("id") id: string) {
         const data = await this.inventoryItemService.GetInventoryItemById(id);
         return new DataRespondModel<InventoryItemModel>(data);

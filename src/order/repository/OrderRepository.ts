@@ -68,7 +68,7 @@ export class OrderRepository {
             OrderType: dto.OrderType ?? "",
             OrderDate: dto.OrderDate ?? new Date(),
             OrderStatus: dto.OrderStatus ?? OrderStatusEnum.Pending,
-            OrderCompletedDate: dto.OrderCompletedDate ?? new Date(),
+            ...(dto.OrderCompletedDate ? { OrderCompletedDate: dto.OrderCompletedDate } : {}),
             OrderItems: orderItems,
         });
         const result = await this.repository.save(newOrder);
@@ -84,7 +84,7 @@ export class OrderRepository {
             OrderType: dto.OrderType ?? "",
             OrderDate: dto.OrderDate ?? new Date(),
             OrderStatus: dto.OrderStatus ?? OrderStatusEnum.Pending,
-            OrderCompletedDate: dto.OrderCompletedDate ?? new Date(),
+            ...(dto.OrderCompletedDate ? { OrderCompletedDate: dto.OrderCompletedDate } : {}),
         });
         const result = await this.repository.save(order);
         return result.Id;
