@@ -1,5 +1,6 @@
-import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsArray, IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { InventoryItemStatusEnum } from "../enum/InventoryItemStatusEnum";
+import { OrderItem } from "../../order/entity/OrderItem";
 
 export class UpsertInventoryItemDto {
 
@@ -43,7 +44,15 @@ export class UpsertInventoryItemDto {
     @IsOptional()
     Sku?: string;
 
+    @IsNumber()
+    @IsOptional()
+    LowestStockLevel?: number;
+
     @IsEnum(InventoryItemStatusEnum)
     @IsOptional()
     Status?: InventoryItemStatusEnum;
+
+    @IsArray()
+    @IsOptional()
+    OrdersId?: OrderItem[];
 }

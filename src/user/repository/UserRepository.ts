@@ -2,15 +2,9 @@ import { injectable } from "tsyringe";
 import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
 import { User } from "../entity/User";
+import { IUserRepository } from "./interface/IUserRepository";
 
-export interface IUserRepository {
-  findAll(): Promise<User[]>;
-  findById(id: number): Promise<User | null>;
-  findByEmail(email: string): Promise<User | null>;
-  create(userData: Partial<User>): Promise<User>;
-  update(id: number, userData: Partial<User>): Promise<User | null>;
-  delete(id: number): Promise<boolean>;
-}
+export { IUserRepository };
 
 @injectable()
 export class UserRepository implements IUserRepository {
@@ -24,12 +18,12 @@ export class UserRepository implements IUserRepository {
     return await this.repository.find();
   }
 
-  async findById(id: number): Promise<User | null> {
-    return await this.repository.findOne({ where: { id } });
+  async findById(userId: string): Promise<User | null> {
+    return await this.repository.findOne({ where: { FireBaseUserId: userId } });
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return await this.repository.findOne({ where: { email } });
+    return await this.repository.findOne({ where: { Email: email } });
   }
 
   async create(userData: Partial<User>): Promise<User> {
@@ -37,8 +31,8 @@ export class UserRepository implements IUserRepository {
     return await this.repository.save(user);
   }
 
-  async update(id: number, userData: Partial<User>): Promise<User | null> {
-    const user = await this.findById(id);
+  async update(userId: string, userData: Partial<User>): Promise<User | null> {
+    const user = await this.repository.findOne({ where: { FireBaseUserId: userId } });
     if (!user) {
       return null;
     }
@@ -46,8 +40,8 @@ export class UserRepository implements IUserRepository {
     return await this.repository.save(user);
   }
 
-  async delete(id: number): Promise<boolean> {
-    const result = await this.repository.delete(id);
+  async delete(userId: string): Promise<boolean> {
+    const result = await this.repository.delete({ FireBaseUserId: userId });
     return (result.affected ?? 0) > 0;
   }
 }

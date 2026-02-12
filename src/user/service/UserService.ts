@@ -1,28 +1,22 @@
 import { injectable, inject } from "tsyringe";
-import { UserRepository, IUserRepository } from "../repository/UserRepository";
+import { UserRepository } from "../repository/UserRepository";
 import { User } from "../entity/User";
+import { IUserService } from "./interface/IUserService";
 
-export interface IUserService {
-  getAllUsers(): Promise<User[]>;
-  getUserById(id: number): Promise<User | null>;
-  getUserByEmail(email: string): Promise<User | null>;
-  createUser(userData: { name: string; email: string }): Promise<User>;
-  updateUser(id: number, userData: Partial<User>): Promise<User | null>;
-  deleteUser(id: number): Promise<boolean>;
-}
+export { IUserService };
 
 @injectable()
 export class UserService implements IUserService {
   constructor(
-    @inject("IUserRepository") private userRepository: IUserRepository
+    @inject(UserRepository) private userRepository: UserRepository
   ) {}
 
   async getAllUsers(): Promise<User[]> {
     return await this.userRepository.findAll();
   }
 
-  async getUserById(id: number): Promise<User | null> {
-    return await this.userRepository.findById(id);
+  async getUserById(userId: string): Promise<User | null> {
+    return await this.userRepository.findById(userId);
   }
 
   async getUserByEmail(email: string): Promise<User | null> {
@@ -37,18 +31,17 @@ export class UserService implements IUserService {
     }
 
     return await this.userRepository.create({
-      ...userData,
-      Active: true,
-      EmailVerified: false,
+      Name: userData.name,
+      Email: userData.email,
     });
   }
 
-  async updateUser(id: number, userData: Partial<User>): Promise<User | null> {
-    return await this.userRepository.update(id, userData);
+  async updateUser(userId: string, userData: Partial<User>): Promise<User | null> {
+    return await this.userRepository.update(userId, userData);
   }
 
-  async deleteUser(id: number): Promise<boolean> {
-    return await this.userRepository.delete(id);
+  async deleteUser(userId: string): Promise<boolean> {
+    return await this.userRepository.delete(userId);
   }
 }
 
