@@ -78,7 +78,7 @@ export class RepositoryHelper {
               continue;
             }
 
-            if (column.columnType === "string") {
+            if (column.columnType === "string" || column.columnType === "enum") {
               result.Filter.push({
                 FilterString: `${column.columnName} LIKE :${column.columnName}`,
                 FilterValues: {
@@ -86,7 +86,7 @@ export class RepositoryHelper {
                 }
               });
             }
-            else if (column.columnType === "number" || column.columnType === "enum") {
+            else if (column.columnType === "number") {
               const value = queryParams[key].split(",");
               if (value.length > 1) {
                 result.Filter.push({
@@ -111,7 +111,6 @@ export class RepositoryHelper {
                   }
                 });
               }
-
             }
             else if (column.columnType === "boolean") {
               result.Filter.push({
