@@ -3,6 +3,7 @@ import { IInventoryItemService } from "../interface/IInventoryItemService";
 import { InventoryItemRepository } from "../../repository/inventoryItemRepository";
 import { IInventoryItemMapperService } from "../interface/mapper/IInventoryItemMapperService";
 import { InventoryItemModel } from "../../model/InventoryItemModel";
+import { InventoryItemSummaryModel } from "../../model/InventoryItemSummaryModel";
 import { UpsertInventoryItemDto } from "../../dto/UpsertInventoryItem";
 import { InventoryItem } from "../../entity/Inventory-item";
 
@@ -25,6 +26,15 @@ export class InventoryItemService extends IInventoryItemService {
   }
 
   
+
+  async GetInventoryItemsByProductName(productName: string): Promise<InventoryItemSummaryModel> {
+    const result = await this.inventoryItemRepository.GetInventoryItemsByProductName(productName);
+    const summary = new InventoryItemSummaryModel();
+    summary.Items = result.items.map(entity => this.mapper.MapEntityToModle(entity));
+    summary.TotalPrice = result.totalPrice;
+    summary.TotalStock = result.totalStock;
+    return summary;
+  }
 
   async GetInventoryItemById(id: string): Promise<InventoryItemModel | null> {
     const entity = await this.inventoryItemRepository.GetInventoryItemById(id);

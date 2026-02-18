@@ -26,10 +26,6 @@ export class UpsertInventoryItemDto {
 
     @IsString()
     @IsOptional()
-    QrCodeValue?: string;
-
-    @IsString()
-    @IsOptional()
     ImageUrl?: string;
 
     @IsString()

@@ -1,5 +1,6 @@
-import { JsonController, Get, Param, QueryParams, Post, Body, Delete, Put } from "routing-controllers";
+import { JsonController, Get, Param, QueryParams, Post, Body, Delete, Put, QueryParam } from "routing-controllers";
 import { InventoryItemModel } from "../model/InventoryItemModel";
+import { InventoryItemSummaryModel } from "../model/InventoryItemSummaryModel";
 import { IInventoryItemService } from "../service/interface/IInventoryItemService";
 import { inject, injectable } from "tsyringe";
 import { DataRespondModel } from "../../common/model/DataRespondModel";
@@ -18,6 +19,12 @@ export class InventoryController {
      async getInventoryItems(@QueryParams() query: Record<string, string>) {
         const [data, total] = await this.inventoryItemService.GetInventoryItems(query);
         return new PaginatedDataRespondModel<InventoryItemModel[]>(data, total, query["Page"], query["PageSize"]);
+    }
+
+    @Get("/search")
+    async getInventoryItemsByProductName(@QueryParam("productName") productName: string) {
+        const data = await this.inventoryItemService.GetInventoryItemsByProductName(productName);
+        return new DataRespondModel<InventoryItemSummaryModel>(data);
     }
 
     @Get("/:id") 

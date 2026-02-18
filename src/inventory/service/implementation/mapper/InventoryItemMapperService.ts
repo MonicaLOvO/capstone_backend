@@ -15,7 +15,6 @@ export class InventoryItemMapperService extends IInventoryItemMapperService {
             Description: entity.Description,
             Quantity: entity.Quantity,
             UnitPrice: entity.UnitPrice,
-            QrCodeValue: entity.QrCode ?? "",
             ImageUrl: entity.ImageUrl ?? "",
             Category: entity.Category ?? "",
             Location: entity.Location ?? "",

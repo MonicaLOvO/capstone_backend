@@ -63,7 +63,6 @@ export class InventoryItemRepository {
       Description: dto.Description ?? "",
       Quantity: dto.Quantity ?? 0,
       UnitPrice: dto.UnitPrice ?? 0,
-      QrCode: dto.QrCodeValue ?? "",
       ImageUrl: dto.ImageUrl ?? "",
       Category: dto.Category ?? "",
       Location: dto.Location ?? "",
@@ -87,7 +86,6 @@ export class InventoryItemRepository {
       Description: dto.Description ?? "",
       Quantity: dto.Quantity ?? 0,
       UnitPrice: dto.UnitPrice ?? 0,
-      QrCode: dto.QrCodeValue ?? "",
       ImageUrl: dto.ImageUrl ?? "",
       Category: dto.Category ?? "",
       Location: dto.Location ?? "",
@@ -98,6 +96,26 @@ export class InventoryItemRepository {
 
     const result = await this.repository.save(target);
     return result.Id;
+  }
+
+  async GetInventoryItemsByProductName(productName: string): Promise<{ items: InventoryItem[], totalPrice: number, totalStock: number }> {
+    const items = await this.repository.createQueryBuilder("ii")
+      .where("ii.DeletedAt IS NULL")
+      .andWhere("ii.ItemName LIKE :name", { name: `%${productName}%` })
+      .getMany();
+
+    const aggregates = await this.repository.createQueryBuilder("ii")
+      .select("COALESCE(SUM(ii.UnitPrice * ii.Quantity), 0)", "totalPrice")
+      .addSelect("COALESCE(SUM(ii.Quantity), 0)", "totalStock")
+      .where("ii.DeletedAt IS NULL")
+      .andWhere("ii.ItemName LIKE :name", { name: `%${productName}%` })
+      .getRawOne();
+
+    return {
+      items,
+      totalPrice: parseFloat(aggregates?.totalPrice ?? "0"),
+      totalStock: parseInt(aggregates?.totalStock ?? "0", 10),
+    };
   }
 
   async DeleteInventoryItem(id: string): Promise<string> {

@@ -78,7 +78,13 @@ export class RepositoryHelper {
               continue;
             }
 
-            if (column.columnType === "string" || column.columnType === "enum") {
+            if (queryParams[key].toLowerCase() === "null") {
+              result.Filter.push({
+                FilterString: `${column.columnName} IS NULL`,
+                FilterValues: {}
+              });
+            }
+            else if (column.columnType === "string" || column.columnType === "enum") {
               result.Filter.push({
                 FilterString: `${column.columnName} LIKE :${column.columnName}`,
                 FilterValues: {

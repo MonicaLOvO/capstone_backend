@@ -7,7 +7,6 @@ export class InventoryItemModel {
     Description?: string;
     Quantity?: number;
     UnitPrice?: number;
-    QrCodeValue?: string;
     ImageUrl?: string;
     Category?: string;
     Location?: string;

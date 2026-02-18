@@ -21,9 +21,6 @@ export class InventoryItem extends Tracking {
     UnitPrice!: number;
 
     @Column({ type: "varchar", length: 255 , nullable: true})
-    QrCode?: string;
-
-    @Column({ type: "varchar", length: 255 , nullable: true})
     ImageUrl?: string;
 
     @Column({ type: "varchar", length: 255 , nullable: true})
@@ -50,7 +47,6 @@ export const InventoryItemColumns = new Map<string, {columnName: string, columnT
     ["Description", {columnName: "ii.Description", columnType: "string"}],
     ["Quantity", {columnName: "ii.Quantity", columnType: "number"}],
     ["UnitPrice", {columnName: "ii.UnitPrice", columnType: "number"}],
-    ["QrCodeValue", {columnName: "ii.QrCode", columnType: "string"}],
     ["ImageUrl", {columnName: "ii.ImageUrl", columnType: "string"}],
     ["Category", {columnName: "ii.Category", columnType: "string"}],
     ["Location", {columnName: "ii.Location", columnType: "string"}],
