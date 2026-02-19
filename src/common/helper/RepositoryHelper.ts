@@ -122,7 +122,7 @@ export class RepositoryHelper {
               result.Filter.push({
                 FilterString: `${column.columnName} = :${column.columnName}`,
                 FilterValues: {
-                  [column.columnName]: Boolean(queryParams[key])
+                  [column.columnName]: queryParams[key].toLowerCase() === "true"
                 }
               });
             }

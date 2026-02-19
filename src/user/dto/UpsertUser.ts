@@ -15,7 +15,7 @@ export class UpsertUserDto {
 
     @IsString()
     @IsOptional()
-    PasswordHash?: string;
+    Password?: string;
 
     @IsString()
     @IsOptional()
