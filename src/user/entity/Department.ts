@@ -1,12 +1,9 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 import { Tracking } from "../../common/entity/Tracking";
 import { User } from "./User";
 
 @Entity("departments")
 export class Department extends Tracking {
-    @PrimaryGeneratedColumn("uuid")
-    DepartmentId!: string;
-
     @Column({ type: "varchar", length: 255, unique: true })
     DepartmentName!: string;
 
@@ -21,7 +18,7 @@ export class Department extends Tracking {
 }
 
 export const DepartmentColumns = new Map<string, { columnName: string; columnType: string }>([
-    ["DepartmentId", { columnName: "d.DepartmentId", columnType: "string" }],
+    ["Id", { columnName: "d.Id", columnType: "string" }],
     ["DepartmentName", { columnName: "d.DepartmentName", columnType: "string" }],
     ["Description", { columnName: "d.Description", columnType: "string" }],
     ["IsActive", { columnName: "d.IsActive", columnType: "boolean" }],

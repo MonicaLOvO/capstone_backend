@@ -3,7 +3,7 @@ import { IsBoolean, IsOptional, IsString } from "class-validator";
 export class UpsertUserDto {
     @IsString()
     @IsOptional()
-    UserId?: string;
+    Id?: string;
 
     @IsString()
     @IsOptional()

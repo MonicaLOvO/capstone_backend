@@ -1,17 +1,16 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from "typeorm";
+import { Column, Entity, OneToMany, Relation } from "typeorm";
 import { Tracking } from "../../common/entity/Tracking";
 import { RolePermission } from "./RolePermission";
+import { PermissionActionEnum } from "../enum/PermissionActionEnum";
+import { PermissionModuleEnum } from "../enum/PermissionModuleEnum";
 
 @Entity("permissions")
 export class Permission extends Tracking {
-    @PrimaryGeneratedColumn("uuid")
-    PermissionId!: string;
+    @Column({ type: "enum", enum: PermissionActionEnum, nullable: false })
+    PermissionAction!: PermissionActionEnum;
 
-    @Column({ type: "varchar", length: 255, unique: true })
-    PermissionName!: string;
-
-    @Column({ type: "varchar", length: 255, nullable: true })
-    Module?: string;
+    @Column({ type: "enum", enum: PermissionModuleEnum, nullable: false })
+    Module!: PermissionModuleEnum;
 
     @Column({ type: "varchar", length: 255, nullable: true })
     Description?: string;

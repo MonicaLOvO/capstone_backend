@@ -1,4 +1,4 @@
-import { IsArray, IsDateString, IsOptional, IsString } from "class-validator";
+import { IsArray, IsOptional, IsString } from "class-validator";
 
 export class UpsertRolePermissionDto {
     @IsString()
@@ -12,8 +12,4 @@ export class UpsertRolePermissionDto {
     @IsString({ each: true })
     @IsOptional()
     PermissionIds?: string[];
-
-    @IsDateString()
-    @IsOptional()
-    ExpiresAt?: string;
 }

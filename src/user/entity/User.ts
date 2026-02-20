@@ -1,13 +1,10 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { Tracking } from "../../common/entity/Tracking";
 import { Department } from "./Department";
 import { Role } from "../../Permission/entity/Role";
 
 @Entity("users")
 export class User extends Tracking {
-    @PrimaryGeneratedColumn("uuid")
-    UserId!: string;
-
     @Column({ type: "varchar", length: 255, unique: true })
     Username!: string;
 
@@ -36,7 +33,7 @@ export class User extends Tracking {
 }
 
 export const UserColumns = new Map<string, { columnName: string; columnType: string }>([
-    ["UserId", { columnName: "u.UserId", columnType: "string" }],
+    ["Id", { columnName: "u.Id", columnType: "string" }],
     ["Username", { columnName: "u.Username", columnType: "string" }],
     ["Email", { columnName: "u.Email", columnType: "string" }],
     ["FirstName", { columnName: "u.FirstName", columnType: "string" }],

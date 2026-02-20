@@ -13,6 +13,10 @@ export class RoleRepository {
     this.repository = AppDataSource.getRepository(Role);
   }
 
+  async GetRoleByName(name: string): Promise<Role | null> {
+    return await this.repository.findOne({ where: { RoleName: name, DeletedAt: IsNull() } });
+  }
+
   async GetRoles(queryParams?: Record<string, string>, getTotal: boolean = false): Promise<Role[] | number> {
     const filterResult = RepositoryHelper.generateFilter(queryParams ?? {}, RoleColumns);
 
@@ -45,7 +49,7 @@ export class RoleRepository {
 
   async GetRoleById(id: string): Promise<Role | null> {
     return await this.repository.findOne({
-      where: { RoleId: id, DeletedAt: IsNull() },
+      where: { Id: id, DeletedAt: IsNull() },
       relations: ["RolePermissions", "RolePermissions.Permission"],
     });
   }
@@ -57,11 +61,11 @@ export class RoleRepository {
     if (dto.Description !== undefined) newItem.Description = dto.Description;
 
     const result = await this.repository.save(newItem);
-    return result?.RoleId ?? "";
+    return result?.Id ?? "";
   }
 
   async UpdateRole(dto: UpsertRoleDto): Promise<string> {
-    const target = await this.repository.findOne({ where: { RoleId: dto.RoleId ?? "", DeletedAt: IsNull() } });
+    const target = await this.repository.findOne({ where: { Id: dto.Id ?? "", DeletedAt: IsNull() } });
     if (!target) {
       throw new Error("Role not found");
     }
@@ -70,17 +74,17 @@ export class RoleRepository {
     if (dto.Description !== undefined) target.Description = dto.Description;
 
     const result = await this.repository.save(target);
-    return result.RoleId;
+    return result.Id;
   }
 
   async DeleteRole(id: string): Promise<string> {
-    const target = await this.repository.findOne({ where: { RoleId: id, DeletedAt: IsNull() } });
+    const target = await this.repository.findOne({ where: { Id: id, DeletedAt: IsNull() } });
     if (!target) {
       throw new Error("Role not found");
     }
 
     target.DeletedAt = new Date();
     const result = await this.repository.save(target);
-    return result.RoleId;
+    return result.Id;
   }
 }

@@ -30,6 +30,14 @@ export class RoleService extends IRoleService {
   }
 
   async CreateRole(dto: UpsertRoleDto): Promise<string> {
+    if(!dto.RoleName)
+    {
+      throw new Error("Role name is required");
+    }
+    const nameLookup = await this.roleRepository.GetRoleByName(dto.RoleName);
+    if (nameLookup) {
+      throw new Error("Role name already exists");
+    }
     const newId = await this.roleRepository.AddRole(dto);
     if (!newId) {
       throw new Error("Failed to create role");

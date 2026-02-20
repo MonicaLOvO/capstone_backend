@@ -45,7 +45,7 @@ export class UserRepository {
 
   async GetUserById(id: string): Promise<User | null> {
     return await this.repository.findOne({
-      where: { UserId: id, DeletedAt: IsNull() },
+      where: { Id: id, DeletedAt: IsNull() },
       relations: ["Department", "Role"],
     });
   }
@@ -70,7 +70,7 @@ export class UserRepository {
   }
 
   async UpdateUser(dto: UpsertUserDto, passwordHash?: string): Promise<string> {
-    const target = await this.repository.findOne({ where: { UserId: dto.UserId ?? "", DeletedAt: IsNull() } });
+    const target = await this.repository.findOne({ where: { Id: dto.Id ?? "", DeletedAt: IsNull() } });
     if (!target) {
       throw new Error("User not found");
     }
@@ -94,17 +94,17 @@ export class UserRepository {
     }
 
     const result = await this.repository.save(target);
-    return result.UserId;
+    return result.Id;
   }
 
   async DeleteUser(id: string): Promise<string> {
-    const target = await this.repository.findOne({ where: { UserId: id, DeletedAt: IsNull() } });
+    const target = await this.repository.findOne({ where: { Id: id, DeletedAt: IsNull() } });
     if (!target) {
       throw new Error("User not found");
     }
 
     target.DeletedAt = new Date();
     const result = await this.repository.save(target);
-    return result.UserId;
+    return result.Id;
   }
 }

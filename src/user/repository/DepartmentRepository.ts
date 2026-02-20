@@ -43,7 +43,7 @@ export class DepartmentRepository {
   }
 
   async GetDepartmentById(id: string): Promise<Department | null> {
-    return await this.repository.findOne({ where: { DepartmentId: id, DeletedAt: IsNull() } });
+    return await this.repository.findOne({ where: { Id: id, DeletedAt: IsNull() } });
   }
 
   async AddDepartment(dto: UpsertDepartmentDto): Promise<string> {
@@ -53,11 +53,11 @@ export class DepartmentRepository {
       IsActive: dto.IsActive ?? true,
     });
     const result = await this.repository.save(newItem);
-    return result?.DepartmentId ?? "";
+    return result?.Id ?? "";
   }
 
   async UpdateDepartment(dto: UpsertDepartmentDto): Promise<string> {
-    const target = await this.repository.findOne({ where: { DepartmentId: dto.DepartmentId ?? "", DeletedAt: IsNull() } });
+    const target = await this.repository.findOne({ where: { Id: dto.Id ?? "", DeletedAt: IsNull() } });
     if (!target) {
       throw new Error("Department not found");
     }
@@ -67,17 +67,17 @@ export class DepartmentRepository {
     target.IsActive = dto.IsActive ?? target.IsActive;
 
     const result = await this.repository.save(target);
-    return result.DepartmentId;
+    return result.Id;
   }
 
   async DeleteDepartment(id: string): Promise<string> {
-    const target = await this.repository.findOne({ where: { DepartmentId: id, DeletedAt: IsNull() } });
+    const target = await this.repository.findOne({ where: { Id: id, DeletedAt: IsNull() } });
     if (!target) {
       throw new Error("Department not found");
     }
 
     target.DeletedAt = new Date();
     const result = await this.repository.save(target);
-    return result.DepartmentId;
+    return result.Id;
   }
 }

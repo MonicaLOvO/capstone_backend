@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation } from "typeorm";
+import { Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation } from "typeorm";
 import { Role } from "./Role";
 import { Permission } from "./Permission";
 
@@ -18,14 +18,11 @@ export class RolePermission {
     @JoinColumn({ name: "PermissionId" })
     Permission!: Relation<Permission>;
 
-    @Column({ type: "datetime", nullable: true })
-    ExpiresAt?: Date;
 }
 
 export const RolePermissionColumns = new Map<string, { columnName: string; columnType: string }>([
     ["RoleId", { columnName: "rp.RoleId", columnType: "string" }],
     ["PermissionId", { columnName: "rp.PermissionId", columnType: "string" }],
-    ["ExpiresAt", { columnName: "rp.ExpiresAt", columnType: "date" }],
     ["PermissionName", { columnName: "permission.PermissionName", columnType: "string" }],
     ["Module", { columnName: "permission.Module", columnType: "string" }],
 ]);

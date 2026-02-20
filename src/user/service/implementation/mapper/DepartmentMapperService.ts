@@ -10,7 +10,7 @@ export class DepartmentMapperService extends IDepartmentMapperService {
 
     MapEntityToModel(entity: Department): DepartmentModel {
         const model = Object.assign<DepartmentModel, Partial<DepartmentModel>>(new DepartmentModel(), {
-            DepartmentId: entity.DepartmentId,
+            Id: entity.Id,
             DepartmentName: entity.DepartmentName,
             Description: entity.Description ?? "",
             IsActive: entity.IsActive,

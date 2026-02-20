@@ -17,8 +17,7 @@ export class RolePermissionRepository {
 
     const query = this.repository.createQueryBuilder("rp")
       .leftJoinAndSelect("rp.Permission", "permission")
-      .where("rp.RoleId = :roleId", { roleId })
-      .andWhere("(rp.ExpiresAt IS NULL OR rp.ExpiresAt > :now)", { now: new Date() });
+      .where("rp.RoleId = :roleId", { roleId });
 
     if (filterResult.Filter.length > 0) {
       for (const filter of filterResult.Filter) {
@@ -49,7 +48,7 @@ export class RolePermissionRepository {
     });
   }
 
-  async AddRolePermission(roleId: string, permissionId: string, expiresAt?: Date): Promise<RolePermission> {
+  async AddRolePermission(roleId: string, permissionId: string): Promise<RolePermission> {
     const existing = await this.repository.findOne({
       where: { RoleId: roleId, PermissionId: permissionId },
     });
@@ -58,20 +57,17 @@ export class RolePermissionRepository {
     }
 
     const entry = this.repository.create({ RoleId: roleId, PermissionId: permissionId });
-    if (expiresAt) entry.ExpiresAt = expiresAt;
     return await this.repository.save(entry);
   }
 
-  async AddBulkRolePermissions(roleId: string, permissionIds: string[], expiresAt?: Date): Promise<number> {
+  async AddBulkRolePermissions(roleId: string, permissionIds: string[]): Promise<number> {
     const existing = await this.repository.find({ where: { RoleId: roleId } });
     const existingSet = new Set(existing.map(e => e.PermissionId));
 
     const newEntries = permissionIds
       .filter(id => !existingSet.has(id))
       .map(id => {
-        const entry = this.repository.create({ RoleId: roleId, PermissionId: id });
-        if (expiresAt) entry.ExpiresAt = expiresAt;
-        return entry;
+        return this.repository.create({ RoleId: roleId, PermissionId: id });
       });
 
     if (newEntries.length === 0) return 0;
@@ -96,16 +92,14 @@ export class RolePermissionRepository {
     return targets.length;
   }
 
-  async ReplaceRolePermissions(roleId: string, permissionIds: string[], expiresAt?: Date): Promise<number> {
+  async ReplaceRolePermissions(roleId: string, permissionIds: string[]): Promise<number> {
     const existing = await this.repository.find({ where: { RoleId: roleId } });
     if (existing.length > 0) {
       await this.repository.remove(existing);
     }
 
     const newEntries = permissionIds.map(id => {
-      const entry = this.repository.create({ RoleId: roleId, PermissionId: id });
-      if (expiresAt) entry.ExpiresAt = expiresAt;
-      return entry;
+      return this.repository.create({ RoleId: roleId, PermissionId: id });
     });
 
     if (newEntries.length === 0) return 0;

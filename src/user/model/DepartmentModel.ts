@@ -1,5 +1,5 @@
 export class DepartmentModel {
-    DepartmentId!: string;
+    Id!: string;
     DepartmentName?: string;
     Description?: string;
     IsActive?: boolean;

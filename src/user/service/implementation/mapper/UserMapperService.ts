@@ -12,7 +12,7 @@ export class UserMapperService extends IUserMapperService {
 
     MapEntityToModel(entity: User): UserModel {
         const model = Object.assign<UserModel, Partial<UserModel>>(new UserModel(), {
-            UserId: entity.UserId,
+            Id: entity.Id,
             Username: entity.Username,
             Email: entity.Email,
             FirstName: entity.FirstName ?? "",
@@ -22,7 +22,7 @@ export class UserMapperService extends IUserMapperService {
 
         if (entity.Department) {
             model.Department = Object.assign<DepartmentModel, Partial<DepartmentModel>>(new DepartmentModel(), {
-                DepartmentId: entity.Department.DepartmentId,
+                Id: entity.Department.Id,
                 DepartmentName: entity.Department.DepartmentName,
                 Description: entity.Department.Description ?? "",
                 IsActive: entity.Department.IsActive,
@@ -31,7 +31,7 @@ export class UserMapperService extends IUserMapperService {
 
         if (entity.Role) {
             model.Role = Object.assign<RoleModel, Partial<RoleModel>>(new RoleModel(), {
-                RoleId: entity.Role.RoleId,
+                Id: entity.Role.Id,
                 RoleName: entity.Role.RoleName,
                 Description: entity.Role.Description ?? "",
             });

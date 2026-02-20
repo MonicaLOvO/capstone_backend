@@ -43,43 +43,43 @@ export class PermissionRepository {
 
   async GetPermissionById(id: string): Promise<Permission | null> {
     return await this.repository.findOne({
-      where: { PermissionId: id, DeletedAt: IsNull() },
+      where: { Id: id, DeletedAt: IsNull() },
     });
   }
 
-  async AddPermission(dto: UpsertPermissionDto): Promise<string> {
-    const newItem = this.repository.create({
-      PermissionName: dto.PermissionName ?? "",
-    });
-    if (dto.Module !== undefined) newItem.Module = dto.Module;
-    if (dto.Description !== undefined) newItem.Description = dto.Description;
+  // async AddPermission(dto: UpsertPermissionDto): Promise<string> {
+  //   const newItem = this.repository.create({
+  //     PermissionName: dto.PermissionName ?? "",
+  //   });
+  //   if (dto.Module !== undefined) newItem.Module = dto.Module;
+  //   if (dto.Description !== undefined) newItem.Description = dto.Description;
 
-    const result = await this.repository.save(newItem);
-    return result?.PermissionId ?? "";
-  }
+  //   const result = await this.repository.save(newItem);
+  //   return result?.PermissionId ?? "";
+  // }
 
-  async UpdatePermission(dto: UpsertPermissionDto): Promise<string> {
-    const target = await this.repository.findOne({ where: { PermissionId: dto.PermissionId ?? "", DeletedAt: IsNull() } });
-    if (!target) {
-      throw new Error("Permission not found");
-    }
+  // async UpdatePermission(dto: UpsertPermissionDto): Promise<string> {
+  //   const target = await this.repository.findOne({ where: { Id: dto.PermissionId ?? "", DeletedAt: IsNull() } });
+  //   if (!target) {
+  //     throw new Error("Permission not found");
+  //   }
 
-    target.PermissionName = dto.PermissionName ?? target.PermissionName;
-    if (dto.Module !== undefined) target.Module = dto.Module;
-    if (dto.Description !== undefined) target.Description = dto.Description;
+  //   target.PermissionAction = dto.PermissionName ?? target.PermissionAction;
+  //   if (dto.Module !== undefined) target.Module = dto.Module;
+  //   if (dto.Description !== undefined) target.Description = dto.Description;
 
-    const result = await this.repository.save(target);
-    return result.PermissionId;
-  }
+  //   const result = await this.repository.save(target);
+  //   return result.Id;
+  // }
 
-  async DeletePermission(id: string): Promise<string> {
-    const target = await this.repository.findOne({ where: { PermissionId: id, DeletedAt: IsNull() } });
-    if (!target) {
-      throw new Error("Permission not found");
-    }
+  // async DeletePermission(id: string): Promise<string> {
+  //   const target = await this.repository.findOne({ where: { Id: id, DeletedAt: IsNull() } });
+  //   if (!target) {
+  //     throw new Error("Permission not found");
+  //   }
 
-    target.DeletedAt = new Date();
-    const result = await this.repository.save(target);
-    return result.PermissionId;
-  }
+  //   target.DeletedAt = new Date();
+  //   const result = await this.repository.save(target);
+  //   return result.Id;
+  // }
 }

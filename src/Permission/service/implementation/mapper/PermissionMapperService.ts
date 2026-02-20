@@ -10,10 +10,10 @@ export class PermissionMapperService extends IPermissionMapperService {
 
     MapEntityToModel(entity: Permission): PermissionModel {
         const model = Object.assign<PermissionModel, Partial<PermissionModel>>(new PermissionModel(), {
-            PermissionId: entity.PermissionId,
-            PermissionName: entity.PermissionName,
-            Module: entity.Module ?? "",
-            Description: entity.Description ?? "",
+            Id: entity.Id,
+            PermissionAction: entity.PermissionAction,
+            Module: entity.Module,
+            Description: entity.Description??"",
         });
         return model;
     }

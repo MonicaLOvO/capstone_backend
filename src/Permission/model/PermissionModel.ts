@@ -1,6 +1,9 @@
+import { PermissionActionEnum } from "../enum/PermissionActionEnum";
+import { PermissionModuleEnum } from "../enum/PermissionModuleEnum";
+
 export class PermissionModel {
-    PermissionId!: string;
-    PermissionName?: string;
-    Module?: string;
+    Id!: string;
+    PermissionAction?: PermissionActionEnum;
+    Module?: PermissionModuleEnum;
     Description?: string;
 }

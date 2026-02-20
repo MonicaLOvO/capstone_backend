@@ -1,17 +1,19 @@
 import { IsOptional, IsString } from "class-validator";
+import { PermissionActionEnum } from "../enum/PermissionActionEnum";
+import { PermissionModuleEnum } from "../enum/PermissionModuleEnum";
 
 export class UpsertPermissionDto {
     @IsString()
     @IsOptional()
-    PermissionId?: string;
+    Id?: string;
 
     @IsString()
     @IsOptional()
-    PermissionName?: string;
+    PermissionAction?: PermissionActionEnum;
 
     @IsString()
     @IsOptional()
-    Module?: string;
+    Module?: PermissionModuleEnum;
 
     @IsString()
     @IsOptional()

@@ -9,12 +9,8 @@ import { UpsertUserDto } from "../../dto/UpsertUser";
 import { SignUpDto } from "../../dto/SignUpDto";
 import { LoginDto } from "../../dto/LoginDto";
 import { User } from "../../entity/User";
-
-export { IUserService };
-
-const SALT_ROUNDS = 10;
-const JWT_SECRET = process.env.JWT_SECRET || "capstone-secret-key";
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "24h";
+import { JWT_SECRET, JWT_EXPIRES_IN, SALT_ROUNDS } from "../../../common/config/jwt.config";
+import { JwtModel } from "../../../common/model/JwtModel";
 
 @injectable()
 export class UserService extends IUserService {
@@ -38,9 +34,11 @@ export class UserService extends IUserService {
   }
 
   async CreateUser(dto: UpsertUserDto): Promise<string> {
-    const passwordHash = dto.Password
-      ? await bcrypt.hash(dto.Password, SALT_ROUNDS)
-      : await bcrypt.hash("default123", SALT_ROUNDS);
+    if(!dto.Password)
+    {
+      throw new Error("Password is required");
+    }
+    const passwordHash = await bcrypt.hash(dto.Password, SALT_ROUNDS);
 
     const userData: Partial<User> = {
       Username: dto.Username ?? "",
@@ -54,7 +52,7 @@ export class UserService extends IUserService {
     if (dto.RoleId) userData.Role = { RoleId: dto.RoleId } as any;
 
     const user = await this.userRepository.AddUser(userData);
-    return user.UserId;
+    return user.Id;
   }
 
   async UpdateUser(dto: UpsertUserDto): Promise<string> {
@@ -104,7 +102,7 @@ export class UserService extends IUserService {
 
     const user = await this.userRepository.AddUser(userData);
 
-    return user.UserId;
+    return user.Id;
   }
 
   async Login(dto: LoginDto): Promise<{ token: string; user: UserModel }> {
@@ -123,17 +121,14 @@ export class UserService extends IUserService {
     }
 
     const signOptions: SignOptions = { expiresIn: JWT_EXPIRES_IN as any };
-    const token = jwt.sign(
-      {
-        userId: user.UserId,
-        username: user.Username,
-        email: user.Email,
-        roleId: user.Role?.RoleId,
-        roleName: user.Role?.RoleName,
-      },
-      JWT_SECRET,
-      signOptions
-    );
+    const payload: JwtModel = {
+      userId: user.Id ?? "",
+      username: user.Username ?? "",
+      email: user.Email ?? "",
+      roleId: user.Role?.Id ?? "",
+      roleName: user.Role?.RoleName ?? "",
+    };
+    const token = jwt.sign(payload, JWT_SECRET, signOptions);
 
     const userModel = this.mapper.MapEntityToModel(user);
     return { token, user: userModel };

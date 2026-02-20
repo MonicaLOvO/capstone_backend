@@ -1,13 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn  } from "typeorm";
+import { Column, Entity, OneToMany, Relation  } from "typeorm";
 import { Tracking } from "../../common/entity/Tracking";
 import { InventoryItemStatusEnum } from "../enum/InventoryItemStatusEnum";
 import { OrderItem } from "../../order/entity/OrderItem";
 
 @Entity("inventory_items")
 export class InventoryItem extends Tracking {
-    @PrimaryGeneratedColumn("uuid")
-    Id!: string;
-
     @Column({ type: "varchar", length: 255 })
     ItemName!: string;
 
@@ -39,7 +36,7 @@ export class InventoryItem extends Tracking {
     LowestStockLevel?: number;
 
     @OneToMany(() => OrderItem, (orderItem) => orderItem.InventoryItem)
-    OrderItems!: OrderItem[];
+    OrderItems!: Relation<OrderItem[]>;
 }
 
 export const InventoryItemColumns = new Map<string, {columnName: string, columnType: string}>([

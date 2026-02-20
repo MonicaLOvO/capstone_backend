@@ -7,6 +7,9 @@ import { UpsertUserDto } from "../dto/UpsertUser";
 import { SignUpDto } from "../dto/SignUpDto";
 import { LoginDto } from "../dto/LoginDto";
 import { PaginatedDataRespondModel } from "../../common/model/PaginatedDataRespondModel";
+import { AndPermission } from "../../common/decorator/PermissionDecorator";
+import { PermissionModuleEnum } from "../../Permission/enum/PermissionModuleEnum";
+import { PermissionActionEnum } from "../../Permission/enum/PermissionActionEnum";
 
 @JsonController("/api/user")
 @injectable()
@@ -39,31 +42,36 @@ export class UserController {
         }
     }
 
+    @AndPermission(PermissionModuleEnum.USER, PermissionActionEnum.VIEW)
     @Get("/list")
     async getUsers(@QueryParams() query: Record<string, string>) {
         const [data, total] = await this.userService.GetUsers(query);
         return new PaginatedDataRespondModel<UserModel[]>(data, total, query["Page"], query["PageSize"]);
     }
 
+    @AndPermission(PermissionModuleEnum.USER, PermissionActionEnum.READ)
     @Get("/:id")
     async getUserById(@Param("id") id: string) {
         const data = await this.userService.GetUserById(id);
         return new DataRespondModel<UserModel>(data);
     }
 
+    @AndPermission(PermissionModuleEnum.USER, PermissionActionEnum.CREATE)
     @Post("")
     async createUser(@Body() dto: UpsertUserDto) {
         const data = await this.userService.CreateUser(dto);
         return new DataRespondModel<string>(data);
     }
 
+    @AndPermission(PermissionModuleEnum.USER, PermissionActionEnum.UPDATE)
     @Put("/:id")
     async updateUser(@Param("id") id: string, @Body() dto: UpsertUserDto) {
-        dto.UserId = id;
+        dto.Id = id;
         const data = await this.userService.UpdateUser(dto);
         return new DataRespondModel<string>(data);
     }
 
+    @AndPermission(PermissionModuleEnum.USER, PermissionActionEnum.DELETE)
     @Delete("/:id")
     async deleteUser(@Param("id") id: string) {
         const data = await this.userService.DeleteUser(id);

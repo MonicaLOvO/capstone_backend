@@ -3,7 +3,7 @@ import { IsOptional, IsString } from "class-validator";
 export class UpsertRoleDto {
     @IsString()
     @IsOptional()
-    RoleId?: string;
+    Id?: string;
 
     @IsString()
     @IsOptional()

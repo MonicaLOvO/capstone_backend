@@ -1,6 +1,9 @@
-import { Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 export class Tracking {
+    @PrimaryGeneratedColumn("uuid")
+    Id!: string;
+    
     @CreateDateColumn()
     CreatedAt!: Date;
 

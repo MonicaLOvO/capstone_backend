@@ -29,27 +29,27 @@ export class PermissionService extends IPermissionService {
     return entity ? this.mapper.MapEntityToModel(entity) : null;
   }
 
-  async CreatePermission(dto: UpsertPermissionDto): Promise<string> {
-    const newId = await this.permissionRepository.AddPermission(dto);
-    if (!newId) {
-      throw new Error("Failed to create permission");
-    }
-    return newId;
-  }
+  // async CreatePermission(dto: UpsertPermissionDto): Promise<string> {
+  //   const newId = await this.permissionRepository.AddPermission(dto);
+  //   if (!newId) {
+  //     throw new Error("Failed to create permission");
+  //   }
+  //   return newId;
+  // }
 
-  async UpdatePermission(dto: UpsertPermissionDto): Promise<string> {
-    const updatedId = await this.permissionRepository.UpdatePermission(dto);
-    if (!updatedId) {
-      throw new Error("Failed to update permission");
-    }
-    return updatedId;
-  }
+  // async UpdatePermission(dto: UpsertPermissionDto): Promise<string> {
+  //   const updatedId = await this.permissionRepository.UpdatePermission(dto);
+  //   if (!updatedId) {
+  //     throw new Error("Failed to update permission");
+  //   }
+  //   return updatedId;
+  // }
 
-  async DeletePermission(id: string): Promise<string> {
-    const deletedId = await this.permissionRepository.DeletePermission(id);
-    if (!deletedId) {
-      throw new Error("Failed to delete permission");
-    }
-    return deletedId;
-  }
+  // async DeletePermission(id: string): Promise<string> {
+  //   const deletedId = await this.permissionRepository.DeletePermission(id);
+  //   if (!deletedId) {
+  //     throw new Error("Failed to delete permission");
+  //   }
+  //   return deletedId;
+  // }
 }

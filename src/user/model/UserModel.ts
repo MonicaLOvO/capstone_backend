@@ -2,7 +2,7 @@ import { DepartmentModel } from "./DepartmentModel";
 import { RoleModel } from "../../Permission/model/RoleModel";
 
 export class UserModel {
-    UserId!: string;
+    Id!: string;
     Username?: string;
     Email?: string;
     FirstName?: string;

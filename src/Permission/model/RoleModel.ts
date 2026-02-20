@@ -1,7 +1,7 @@
 import { PermissionModel } from "./PermissionModel";
 
 export class RoleModel {
-    RoleId!: string;
+    Id!: string;
     RoleName?: string;
     Description?: string;
     Permissions?: PermissionModel[];

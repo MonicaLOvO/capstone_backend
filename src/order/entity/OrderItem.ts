@@ -1,13 +1,10 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { Tracking } from "../../common/entity/Tracking";
 import { InventoryItem } from "../../inventory/entity/Inventory-item";
 import { Order } from "./Order";
 
 @Entity("order_items")
 export class OrderItem extends Tracking {
-
-    @PrimaryGeneratedColumn("uuid")
-    Id!: string;
 
     @ManyToOne(() => Order, (order) => order.OrderItems)
     @JoinColumn({ name: "OrderId" })

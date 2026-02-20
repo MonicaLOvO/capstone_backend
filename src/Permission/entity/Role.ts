@@ -1,13 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from "typeorm";
+import { Column, Entity, OneToMany, Relation } from "typeorm";
 import { Tracking } from "../../common/entity/Tracking";
 import { User } from "../../user/entity/User";
 import { RolePermission } from "./RolePermission";
 
 @Entity("roles")
 export class Role extends Tracking {
-    @PrimaryGeneratedColumn("uuid")
-    RoleId!: string;
-
     @Column({ type: "varchar", length: 255, unique: true })
     RoleName!: string;
 
@@ -22,7 +19,7 @@ export class Role extends Tracking {
 }
 
 export const RoleColumns = new Map<string, { columnName: string; columnType: string }>([
-    ["RoleId", { columnName: "r.RoleId", columnType: "string" }],
+    ["Id", { columnName: "r.Id", columnType: "string" }],
     ["RoleName", { columnName: "r.RoleName", columnType: "string" }],
     ["Description", { columnName: "r.Description", columnType: "string" }],
 ]);

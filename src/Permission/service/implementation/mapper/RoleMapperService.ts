@@ -3,6 +3,8 @@ import { Role } from "../../../entity/Role";
 import { RoleModel } from "../../../model/RoleModel";
 import { PermissionModel } from "../../../model/PermissionModel";
 import { IRoleMapperService } from "../../interface/mapper/IRoleMapperService";
+import { PermissionActionEnum } from "../../../enum/PermissionActionEnum";
+import { PermissionModuleEnum } from "../../../enum/PermissionModuleEnum";
 
 export { IRoleMapperService };
 
@@ -11,7 +13,7 @@ export class RoleMapperService extends IRoleMapperService {
 
     MapEntityToModel(entity: Role): RoleModel {
         const model = Object.assign<RoleModel, Partial<RoleModel>>(new RoleModel(), {
-            RoleId: entity.RoleId,
+            Id: entity.Id,
             RoleName: entity.RoleName,
             Description: entity.Description ?? "",
         });
@@ -19,9 +21,9 @@ export class RoleMapperService extends IRoleMapperService {
         if (entity.RolePermissions && entity.RolePermissions.length > 0) {
             model.Permissions = entity.RolePermissions.map(rp => {
                 return Object.assign<PermissionModel, Partial<PermissionModel>>(new PermissionModel(), {
-                    PermissionId: rp.Permission?.PermissionId ?? rp.PermissionId,
-                    PermissionName: rp.Permission?.PermissionName ?? "",
-                    Module: rp.Permission?.Module ?? "",
+                    Id: rp.Permission?.Id ,
+                    PermissionAction: rp.Permission?.PermissionAction,
+                    Module: rp.Permission?.Module,
                     Description: rp.Permission?.Description ?? "",
                 });
             });
