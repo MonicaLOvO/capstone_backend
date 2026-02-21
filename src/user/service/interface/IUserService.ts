@@ -1,10 +1,14 @@
-import { User } from "../../entity/User";
+import { UpsertUserDto } from "../../dto/UpsertUser";
+import { SignUpDto } from "../../dto/SignUpDto";
+import { LoginDto } from "../../dto/LoginDto";
+import { UserModel } from "../../model/UserModel";
 
-export interface IUserService {
-  getAllUsers(): Promise<User[]>;
-  getUserById(userId: string): Promise<User | null>;
-  getUserByEmail(email: string): Promise<User | null>;
-  createUser(userData: { name: string; email: string }): Promise<User>;
-  updateUser(userId: string, userData: Partial<User>): Promise<User | null>;
-  deleteUser(userId: string): Promise<boolean>;
+export abstract class IUserService {
+    abstract GetUsers(query?: Record<string, string>): Promise<[UserModel[], number]>;
+    abstract GetUserById(id: string): Promise<UserModel | null>;
+    abstract CreateUser(dto: UpsertUserDto): Promise<string>;
+    abstract UpdateUser(dto: UpsertUserDto): Promise<string>;
+    abstract DeleteUser(id: string): Promise<string>;
+    abstract SignUp(dto: SignUpDto): Promise<string>;
+    abstract Login(dto: LoginDto): Promise<{ token: string; user: UserModel }>;
 }

@@ -1,13 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 import { Tracking } from "../../common/entity/Tracking";
 import { OrderStatusEnum } from "../enum/OrderStatusEnum";
 import { OrderItem } from "./OrderItem";
 
 @Entity("orders")
 export class Order extends Tracking {
-
-    @PrimaryGeneratedColumn("uuid")
-    Id!: string;
 
     @Column({ type: "varchar", length: 255, nullable: true })
     OrderType?: string;

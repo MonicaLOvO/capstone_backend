@@ -2,10 +2,12 @@ import "reflect-metadata";
 import express, { type Request, type Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { useExpressServer } from "routing-controllers";
+import { useExpressServer, type Action } from "routing-controllers";
 import { AppDataSource } from "./data-source";
 import { setupContainer } from "./container";
-import * as path from "path";
+import { JwtAuthMiddleware } from "./common/middleware/JwtAuthMiddleware";
+import { RequestContext } from "./common/context/RequestContext";
+import { runSeeds } from "./common/seed/seed-runner";
 
 dotenv.config();
 
@@ -39,20 +41,18 @@ AppDataSource.initialize()
     // Setup routing-controllers to automatically discover and register controllers
     useExpressServer(app, {
       controllers: [
-        // Auto-discover controllers from all controller folders
-        // Use glob pattern that works in both dev and production
         __dirname + "/**/controller/**/*.ts",
         __dirname + "/**/controller/**/*.js",
       ],
-      // Enable CORS
+      middlewares: [JwtAuthMiddleware],
+      currentUserChecker: (action: Action) => RequestContext.current(),
       cors: true,
-      // Enable validation
       validation: true,
-      // Convert string numbers to numbers before validation (fixes @IsNumber() when client sends "10" instead of 10)
       plainToClassTransformOptions: { enableImplicitConversion: true },
-      // Enable default error handler to return validation errors with details
       defaultErrorHandler: true,
     });
+
+    await runSeeds(AppDataSource);
     
     app.listen(PORT, () => {
       // eslint-disable-next-line no-console

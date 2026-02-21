@@ -1,72 +1,80 @@
-import { injectable, inject } from "tsyringe";
-import {
-  JsonController,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Param,
-  Body,
-  HttpCode,
-  OnUndefined,
-} from "routing-controllers";
-import { UserService, IUserService } from "../service/UserService";
-import { User } from "../entity/User";
+import { JsonController, Get, Param, QueryParams, Post, Body, Delete, Put } from "routing-controllers";
+import { UserModel } from "../model/UserModel";
+import { IUserService } from "../service/interface/IUserService";
+import { inject, injectable } from "tsyringe";
+import { DataRespondModel } from "../../common/model/DataRespondModel";
+import { UpsertUserDto } from "../dto/UpsertUser";
+import { SignUpDto } from "../dto/SignUpDto";
+import { LoginDto } from "../dto/LoginDto";
+import { PaginatedDataRespondModel } from "../../common/model/PaginatedDataRespondModel";
+import { AndPermission } from "../../common/decorator/PermissionDecorator";
+import { PermissionModuleEnum } from "../../Permission/enum/PermissionModuleEnum";
+import { PermissionActionEnum } from "../../Permission/enum/PermissionActionEnum";
 
-@JsonController("/api/users")
+@JsonController("/api/user")
 @injectable()
 export class UserController {
-  constructor(
-    @inject("IUserService") private userService: IUserService
-  ) {}
+    constructor(
+        @inject(IUserService.name) private readonly userService: IUserService
+    ) {}
 
-  
-  @Post()
-  @HttpCode(201)
-  async createUser(@Body() body: { name: string; email: string }): Promise<User> {
-    const { name, email } = body;
-
-    if (!name || !email) {
-      throw new Error("Name and email are required");
+    @Post("/signup")
+    async signUp(@Body() dto: SignUpDto) {
+        try {
+            const userId = await this.userService.SignUp(dto);
+            return new DataRespondModel<string>(userId, "User registered successfully");
+        } catch (error: any) {
+            const response = new DataRespondModel<string>(null, error.message);
+            response.Success = false;
+            return response;
+        }
     }
 
-    try {
-      return await this.userService.createUser({ name, email });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to create user";
-      throw new Error(errorMessage);
+    @Post("/login")
+    async login(@Body() dto: LoginDto) {
+        try {
+            const result = await this.userService.Login(dto);
+            return new DataRespondModel<{ token: string; user: UserModel }>(result, "Login successful");
+        } catch (error: any) {
+            const response = new DataRespondModel<string>(null, error.message);
+            response.Success = false;
+            return response;
+        }
     }
-  }
 
-  // @Put("/:id")
-  // async updateUser(
-  //   @Param("id") id: number,
-  //   @Body() body: Partial<User>
-  // ): Promise<User> {
-  //   if (isNaN(id)) {
-  //     throw new Error("Invalid user ID");
-  //   }
+    @AndPermission(PermissionModuleEnum.USER, PermissionActionEnum.VIEW)
+    @Get("/list")
+    async getUsers(@QueryParams() query: Record<string, string>) {
+        const [data, total] = await this.userService.GetUsers(query);
+        return new PaginatedDataRespondModel<UserModel[]>(data, total, query["Page"], query["PageSize"]);
+    }
 
-  //   const user = await this.userService.updateUser(id, body);
-  //   if (!user) {
-  //     throw new Error("User not found");
-  //   }
+    @AndPermission(PermissionModuleEnum.USER, PermissionActionEnum.READ)
+    @Get("/:id")
+    async getUserById(@Param("id") id: string) {
+        const data = await this.userService.GetUserById(id);
+        return new DataRespondModel<UserModel>(data);
+    }
 
-  //   return user;
-  // }
+    @AndPermission(PermissionModuleEnum.USER, PermissionActionEnum.CREATE)
+    @Post("")
+    async createUser(@Body() dto: UpsertUserDto) {
+        const data = await this.userService.CreateUser(dto);
+        return new DataRespondModel<string>(data);
+    }
 
-  // @Delete("/:id")
-  // @HttpCode(204)
-  // @OnUndefined(204)
-  // async deleteUser(@Param("id") id: number): Promise<void> {
-  //   if (isNaN(id)) {
-  //     throw new Error("Invalid user ID");
-  //   }
+    @AndPermission(PermissionModuleEnum.USER, PermissionActionEnum.UPDATE)
+    @Put("/:id")
+    async updateUser(@Param("id") id: string, @Body() dto: UpsertUserDto) {
+        dto.Id = id;
+        const data = await this.userService.UpdateUser(dto);
+        return new DataRespondModel<string>(data);
+    }
 
-  //   const deleted = await this.userService.deleteUser(id);
-  //   if (!deleted) {
-  //     throw new Error("User not found");
-  //   }
-  // }
+    @AndPermission(PermissionModuleEnum.USER, PermissionActionEnum.DELETE)
+    @Delete("/:id")
+    async deleteUser(@Param("id") id: string) {
+        const data = await this.userService.DeleteUser(id);
+        return new DataRespondModel<string>(data);
+    }
 }
-

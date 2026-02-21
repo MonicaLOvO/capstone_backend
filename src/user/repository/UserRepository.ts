@@ -1,48 +1,110 @@
 import { injectable } from "tsyringe";
-import { Repository } from "typeorm";
+import { IsNull, Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
-import { User } from "../entity/User";
-import { IUserRepository } from "./interface/IUserRepository";
-
-export { IUserRepository };
+import { User, UserColumns } from "../entity/User";
+import { UpsertUserDto } from "../dto/UpsertUser";
+import { RepositoryHelper } from "../../common/helper/RepositoryHelper";
 
 @injectable()
-export class UserRepository implements IUserRepository {
+export class UserRepository {
   private repository: Repository<User>;
 
   constructor() {
     this.repository = AppDataSource.getRepository(User);
   }
 
-  async findAll(): Promise<User[]> {
-    return await this.repository.find();
-  }
+  async GetUsers(queryParams?: Record<string, string>, getTotal: boolean = false): Promise<User[] | number> {
+    const filterResult = RepositoryHelper.generateFilter(queryParams ?? {}, UserColumns);
 
-  async findById(userId: string): Promise<User | null> {
-    return await this.repository.findOne({ where: { FireBaseUserId: userId } });
-  }
+    const query = this.repository.createQueryBuilder("u")
+      .leftJoinAndSelect("u.Department", "department")
+      .leftJoinAndSelect("u.Role", "role")
+      .where("u.DeletedAt IS NULL");
 
-  async findByEmail(email: string): Promise<User | null> {
-    return await this.repository.findOne({ where: { Email: email } });
-  }
-
-  async create(userData: Partial<User>): Promise<User> {
-    const user = this.repository.create(userData);
-    return await this.repository.save(user);
-  }
-
-  async update(userId: string, userData: Partial<User>): Promise<User | null> {
-    const user = await this.repository.findOne({ where: { FireBaseUserId: userId } });
-    if (!user) {
-      return null;
+    if (filterResult.Filter.length > 0) {
+      for (const filter of filterResult.Filter) {
+        query.andWhere(filter.FilterString, filter.FilterValues);
+      }
     }
-    Object.assign(user, userData);
-    return await this.repository.save(user);
+
+    if (!getTotal && filterResult.OrderBy && filterResult.OrderBy.OrderByString) {
+      query.orderBy(filterResult.OrderBy.OrderByString ?? "", filterResult.OrderBy.OrderByDirection ?? "ASC");
+    }
+
+    if (!getTotal && filterResult.Pagination && filterResult.Pagination.Page && filterResult.Pagination.PageSize) {
+      query.skip((filterResult.Pagination.Page - 1) * filterResult.Pagination.PageSize);
+      query.take(filterResult.Pagination.PageSize);
+    }
+
+    if (getTotal) {
+      return await query.getCount();
+    } else {
+      return await query.getMany();
+    }
   }
 
-  async delete(userId: string): Promise<boolean> {
-    const result = await this.repository.delete({ FireBaseUserId: userId });
-    return (result.affected ?? 0) > 0;
+  async GetUserById(id: string): Promise<User | null> {
+    return await this.repository.findOne({
+      where: { Id: id, DeletedAt: IsNull() },
+      relations: ["Department", "Role"],
+    });
+  }
+
+  async GetUserByUsername(username: string): Promise<User | null> {
+    return await this.repository.findOne({
+      where: { Username: username, DeletedAt: IsNull() },
+      relations: ["Department", "Role"],
+    });
+  }
+
+  async GetUserByEmail(email: string): Promise<User | null> {
+    return await this.repository.findOne({
+      where: { Email: email, DeletedAt: IsNull() },
+      relations: ["Department", "Role"],
+    });
+  }
+
+  async AddUser(userData: Partial<User>): Promise<User> {
+    const newUser = this.repository.create(userData);
+    return await this.repository.save(newUser);
+  }
+
+  async UpdateUser(dto: UpsertUserDto, passwordHash?: string): Promise<string> {
+    const target = await this.repository.findOne({ where: { Id: dto.Id ?? "", DeletedAt: IsNull() } });
+    if (!target) {
+      throw new Error("User not found");
+    }
+
+    target.Username = dto.Username ?? target.Username;
+    target.Email = dto.Email ?? target.Email;
+    if (dto.FirstName !== undefined) target.FirstName = dto.FirstName;
+    if (dto.LastName !== undefined) target.LastName = dto.LastName;
+    target.IsActive = dto.IsActive ?? target.IsActive;
+
+    if (passwordHash) {
+      target.PasswordHash = passwordHash;
+    }
+
+    if (dto.DepartmentId) {
+      target.Department = { DepartmentId: dto.DepartmentId } as any;
+    }
+
+    if (dto.RoleId) {
+      target.Role = { RoleId: dto.RoleId } as any;
+    }
+
+    const result = await this.repository.save(target);
+    return result.Id;
+  }
+
+  async DeleteUser(id: string): Promise<string> {
+    const target = await this.repository.findOne({ where: { Id: id, DeletedAt: IsNull() } });
+    if (!target) {
+      throw new Error("User not found");
+    }
+
+    target.DeletedAt = new Date();
+    const result = await this.repository.save(target);
+    return result.Id;
   }
 }
-
