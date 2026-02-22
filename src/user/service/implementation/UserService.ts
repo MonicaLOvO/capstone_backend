@@ -11,12 +11,15 @@ import { LoginDto } from "../../dto/LoginDto";
 import { User } from "../../entity/User";
 import { JWT_SECRET, JWT_EXPIRES_IN, SALT_ROUNDS } from "../../../common/config/jwt.config";
 import { JwtModel } from "../../../common/model/JwtModel";
+import { RequestContext } from "../../../common/context/RequestContext";
+
+export { IUserService };
 
 @injectable()
 export class UserService extends IUserService {
   constructor(
     @inject(IUserMapperService.name) private readonly mapper: IUserMapperService,
-    @inject(UserRepository) private readonly userRepository: UserRepository
+    @inject(UserRepository) private readonly userRepository: UserRepository,
   ) {
     super();
   }
@@ -31,6 +34,16 @@ export class UserService extends IUserService {
   async GetUserById(id: string): Promise<UserModel | null> {
     const entity = await this.userRepository.GetUserById(id);
     return entity ? this.mapper.MapEntityToModel(entity) : null;
+  }
+
+  async GetCurrentUser(): Promise<UserModel | null> {
+    const context = RequestContext.currentOrFail();
+
+    const entity = await this.userRepository.GetUserById(context.userId);
+    if (!entity) return null;
+
+    const model = this.mapper.MapEntityToModel(entity);
+    return model;
   }
 
   async CreateUser(dto: UpsertUserDto): Promise<string> {

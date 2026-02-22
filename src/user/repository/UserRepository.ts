@@ -4,6 +4,7 @@ import { AppDataSource } from "../../data-source";
 import { User, UserColumns } from "../entity/User";
 import { UpsertUserDto } from "../dto/UpsertUser";
 import { RepositoryHelper } from "../../common/helper/RepositoryHelper";
+import { RequestContext } from "../../common/context/RequestContext";
 
 @injectable()
 export class UserRepository {
@@ -18,7 +19,9 @@ export class UserRepository {
 
     const query = this.repository.createQueryBuilder("u")
       .leftJoinAndSelect("u.Department", "department")
-      .leftJoinAndSelect("u.Role", "role")
+      .leftJoinAndSelect("u.Role", "role", "role.DeletedAt IS NULL")
+      // .leftJoinAndSelect("role.RolePermissions", "rolePermissions")
+      // .leftJoinAndSelect("rolePermissions.Permission", "permission", "permission.DeletedAt IS NULL")
       .where("u.DeletedAt IS NULL");
 
     if (filterResult.Filter.length > 0) {
@@ -46,26 +49,30 @@ export class UserRepository {
   async GetUserById(id: string): Promise<User | null> {
     return await this.repository.findOne({
       where: { Id: id, DeletedAt: IsNull() },
-      relations: ["Department", "Role"],
+      relations: ["Department", "Role", "Role.RolePermissions", "Role.RolePermissions.Permission"],
     });
   }
 
   async GetUserByUsername(username: string): Promise<User | null> {
     return await this.repository.findOne({
       where: { Username: username, DeletedAt: IsNull() },
-      relations: ["Department", "Role"],
+      relations: ["Department", "Role", "Role.RolePermissions", "Role.RolePermissions.Permission"],
     });
   }
 
   async GetUserByEmail(email: string): Promise<User | null> {
     return await this.repository.findOne({
       where: { Email: email, DeletedAt: IsNull() },
-      relations: ["Department", "Role"],
+      relations: ["Department", "Role", "Role.RolePermissions", "Role.RolePermissions.Permission"],
     });
   }
 
   async AddUser(userData: Partial<User>): Promise<User> {
+    const context = RequestContext.currentOrFail();
     const newUser = this.repository.create(userData);
+    newUser.CreatedBy = context.userId ?? "";
+    newUser.UpdatedBy = context.userId ?? "";
+
     return await this.repository.save(newUser);
   }
 
@@ -93,6 +100,7 @@ export class UserRepository {
       target.Role = { RoleId: dto.RoleId } as any;
     }
 
+    target.UpdatedBy = RequestContext.currentOrFail().userId ?? "";
     const result = await this.repository.save(target);
     return result.Id;
   }
@@ -104,6 +112,7 @@ export class UserRepository {
     }
 
     target.DeletedAt = new Date();
+    target.UpdatedBy = RequestContext.currentOrFail().userId ?? "";
     const result = await this.repository.save(target);
     return result.Id;
   }

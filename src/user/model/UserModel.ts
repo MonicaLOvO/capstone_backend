@@ -8,6 +8,10 @@ export class UserModel {
     FirstName?: string;
     LastName?: string;
     Department?: DepartmentModel;
-    Role?: RoleModel;
+    Role?: RoleModel | null;
     IsActive?: boolean;
+    CreatedAt?: Date;
+    UpdatedAt?: Date;
+    CreatedBy?: string;
+    UpdatedBy?: string;
 }

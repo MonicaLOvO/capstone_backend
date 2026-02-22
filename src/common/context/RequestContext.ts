@@ -8,8 +8,8 @@ export interface PermissionEntry {
 }
 
 export class RequestContextModel {
-    userId?: string|null;
-    username?: string|null;
+    userId!: string;
+    username!: string;
     email?: string|null;
     roleId?: string|null;
     roleName?: string|null;

@@ -16,30 +16,20 @@ import { PermissionActionEnum } from "../../Permission/enum/PermissionActionEnum
 export class UserController {
     constructor(
         @inject(IUserService.name) private readonly userService: IUserService
-    ) {}
+    ) {
+        console.log("UserController constructor", IUserService.name);
+    }
 
     @Post("/signup")
     async signUp(@Body() dto: SignUpDto) {
-        try {
-            const userId = await this.userService.SignUp(dto);
-            return new DataRespondModel<string>(userId, "User registered successfully");
-        } catch (error: any) {
-            const response = new DataRespondModel<string>(null, error.message);
-            response.Success = false;
-            return response;
-        }
+        const userId = await this.userService.SignUp(dto);
+        return new DataRespondModel<string>(userId, "User registered successfully");
     }
 
     @Post("/login")
     async login(@Body() dto: LoginDto) {
-        try {
-            const result = await this.userService.Login(dto);
-            return new DataRespondModel<{ token: string; user: UserModel }>(result, "Login successful");
-        } catch (error: any) {
-            const response = new DataRespondModel<string>(null, error.message);
-            response.Success = false;
-            return response;
-        }
+        const result = await this.userService.Login(dto);
+        return new DataRespondModel<{ token: string; user: UserModel }>(result, "Login successful");
     }
 
     @AndPermission(PermissionModuleEnum.USER, PermissionActionEnum.VIEW)
@@ -47,6 +37,12 @@ export class UserController {
     async getUsers(@QueryParams() query: Record<string, string>) {
         const [data, total] = await this.userService.GetUsers(query);
         return new PaginatedDataRespondModel<UserModel[]>(data, total, query["Page"], query["PageSize"]);
+    }
+
+    @Get("/current")
+    async getCurrentUser() {
+        const data = await this.userService.GetCurrentUser();
+        return new DataRespondModel<UserModel>(data, "Current user retrieved successfully");
     }
 
     @AndPermission(PermissionModuleEnum.USER, PermissionActionEnum.READ)

@@ -48,6 +48,11 @@ export class JwtAuthMiddleware implements ExpressMiddlewareInterface {
             return;
         }
 
+        if (!decoded.userId || !decoded.username) {
+            response.status(401).json({ Success: false, Message: "Invalid token" });
+            return;
+        }
+
         let permissions: PermissionEntry[] = [];
         if (decoded.roleId) {
             try {
@@ -62,8 +67,8 @@ export class JwtAuthMiddleware implements ExpressMiddlewareInterface {
         }
 
         const context: RequestContextModel = Object.assign<RequestContextModel, Partial<RequestContextModel>>(new RequestContextModel(), {
-            userId: decoded.userId ?? null,
-            username: decoded.username ?? null,
+            userId: decoded.userId,
+            username: decoded.username,
             email: decoded.email ?? null,
             roleId: decoded.roleId ?? null,
             roleName: decoded.roleName ?? null,
