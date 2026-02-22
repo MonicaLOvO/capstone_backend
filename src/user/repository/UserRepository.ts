@@ -32,6 +32,13 @@ export class UserRepository {
       }
     }
 
+    if(queryParams?.["DepartmentName"]) {
+      query.andWhere("department.DepartmentName LIKE :departmentName", { departmentName: `%${queryParams?.["DepartmentName"] ?? ""}%` });
+    }
+    if(queryParams?.["RoleName"]) {
+      query.andWhere("role.RoleName LIKE :roleName", { roleName: `%${queryParams?.["RoleName"] ?? ""}%` });
+    }
+
     if (!getTotal && filterResult.OrderBy && filterResult.OrderBy.OrderByString) {
       query.orderBy(filterResult.OrderBy.OrderByString ?? "", filterResult.OrderBy.OrderByDirection ?? "ASC");
     }

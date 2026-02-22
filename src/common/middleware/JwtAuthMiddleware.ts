@@ -6,6 +6,7 @@ import { RequestContext, RequestContextModel, type PermissionEntry } from "../co
 import { RolePermissionRepository } from "../../Permission/repository/RolePermissionRepository";
 import type { RolePermission } from "../../Permission/entity/RolePermission";
 import { JwtModel } from "../model/JwtModel";
+import { UserRepository } from "../../user/repository/UserRepository";
 
 /**
  * Paths that bypass JWT verification entirely (exact match).
@@ -23,7 +24,9 @@ const AUTH_WHITELIST: string[] = [
 export class JwtAuthMiddleware implements ExpressMiddlewareInterface {
     constructor(
         @inject(RolePermissionRepository)
-        private readonly rolePermissionRepo: RolePermissionRepository
+        private readonly rolePermissionRepo: RolePermissionRepository,
+        @inject(UserRepository) 
+        private readonly userRepo: UserRepository
     ) {}
 
     async use(request: any, response: any, next: (err?: any) => any): Promise<void> {
@@ -55,6 +58,23 @@ export class JwtAuthMiddleware implements ExpressMiddlewareInterface {
 
         let permissions: PermissionEntry[] = [];
         if (decoded.roleId) {
+            try {
+                const user = await this.userRepo.GetUserById(decoded.userId);
+                if(!user)
+                {
+                    response.status(401).json({ Success: false, Message: "User not found or changed" });
+                    return;
+                }
+                if(user.Role?.Id != decoded.roleId)
+                {
+                    response.status(401).json({ Success: false, Message: "Role has changed, please re-login", Code: "TOKEN_STALE" });
+                    return;
+                }
+               
+            } catch {
+                response.status(401).json({ Success: false, Message: "Role not found or changed" });
+                return;
+            }
             try {
                 const rolePerms = await this.rolePermissionRepo.GetPermissionsByRoleId(decoded.roleId) as RolePermission[];
                 permissions = rolePerms.map((rp) => ({

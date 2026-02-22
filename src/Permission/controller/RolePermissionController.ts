@@ -23,31 +23,31 @@ export class RolePermissionController {
         return new PaginatedDataRespondModel<PermissionModel[]>(data, total, query["Page"], query["PageSize"]);
     }
 
-    @Post("/assign")
-    @AndPermission(PermissionModuleEnum.ROLE, PermissionActionEnum.CREATE)
-    async assignPermission(@Body() dto: UpsertRolePermissionDto) {
-        const data = await this.rolePermissionService.AssignPermission(dto);
-        return new DataRespondModel<string>(data);
-    }
+    // @Post("/assign")
+    // @AndPermission(PermissionModuleEnum.ROLE, PermissionActionEnum.CREATE)
+    // async assignPermission(@Body() dto: UpsertRolePermissionDto) {
+    //     const data = await this.rolePermissionService.AssignPermission(dto);
+    //     return new DataRespondModel<string>(data);
+    // }
 
-    @Post("/assign-bulk")
-    @AndPermission(PermissionModuleEnum.ROLE, PermissionActionEnum.CREATE)
-    async assignBulkPermissions(@Body() dto: UpsertRolePermissionDto) {
-        const count = await this.rolePermissionService.AssignBulkPermissions(dto);
-        return new DataRespondModel<string>(`${count} permissions assigned`);
-    }
+    // @Post("/assign-bulk")
+    // @AndPermission(PermissionModuleEnum.ROLE, PermissionActionEnum.CREATE)
+    // async assignBulkPermissions(@Body() dto: UpsertRolePermissionDto) {
+    //     const count = await this.rolePermissionService.AssignBulkPermissions(dto);
+    //     return new DataRespondModel<string>(`${count} permissions assigned`);
+    // }
 
-    @Put("/replace")
+    @Put("")
     @AndPermission(PermissionModuleEnum.ROLE, PermissionActionEnum.UPDATE)
     async replacePermissions(@Body() dto: UpsertRolePermissionDto) {
         const count = await this.rolePermissionService.UpsertPermissions(dto);
         return new DataRespondModel<string>(`Replaced with ${count} permissions`);
     }
 
-    @Delete("/role/:roleId/permission/:permissionId")
-    @AndPermission(PermissionModuleEnum.ROLE, PermissionActionEnum.DELETE)
-    async removePermission(@Param("roleId") roleId: string, @Param("permissionId") permissionId: string) {
-        const data = await this.rolePermissionService.RemovePermission(roleId, permissionId);
-        return new DataRespondModel<string>(data);
-    }
+    // @Delete("/role/:roleId/permission/:permissionId")
+    // @AndPermission(PermissionModuleEnum.ROLE, PermissionActionEnum.DELETE)
+    // async removePermission(@Param("roleId") roleId: string, @Param("permissionId") permissionId: string) {
+    //     const data = await this.rolePermissionService.RemovePermission(roleId, permissionId);
+    //     return new DataRespondModel<string>(data);
+    // }
 }

@@ -5,12 +5,16 @@ import { IPermissionMapperService } from "../interface/mapper/IPermissionMapperS
 import { UpsertRolePermissionDto } from "../../dto/UpsertRolePermission";
 import { RolePermission } from "../../entity/RolePermission";
 import { PermissionModel } from "../../model/PermissionModel";
+import { IPermissionService } from "../interface/IPermissionService";
+import { IRoleService } from "../interface/IRoleService";
 
 export { IRolePermissionService };
 
 @injectable()
 export class RolePermissionService extends IRolePermissionService {
   constructor(
+    @inject(IRoleService.name) private readonly roleService: IRoleService,
+    @inject(IPermissionService.name) private readonly permissionService: IPermissionService,
     @inject(IPermissionMapperService.name) private readonly permissionMapper: IPermissionMapperService,
     @inject(RolePermissionRepository) private readonly rolePermissionRepository: RolePermissionRepository
   ) {
@@ -28,38 +32,23 @@ export class RolePermissionService extends IRolePermissionService {
     return [models, total];
   }
 
-  async AssignPermission(dto: UpsertRolePermissionDto): Promise<string> {
-    // TODO: Check permission Id is good
-    if (!dto.PermissionId) {
-      throw new Error("PermissionId is required");
-    }
-    const entry = await this.rolePermissionRepository.AddRolePermission(dto.RoleId, dto.PermissionId);
-    return `Assigned permission ${entry.PermissionId} to role ${entry.RoleId}`;
-  }
-
-  async AssignBulkPermissions(dto: UpsertRolePermissionDto): Promise<number> {
-    // Check permission Id is good
-    if (!dto.PermissionIds || dto.PermissionIds.length === 0) {
-      throw new Error("PermissionIds array is required");
-    }
-    return await this.rolePermissionRepository.AddBulkRolePermissions(dto.RoleId, dto.PermissionIds);
-  }
-
-  async RemovePermission(roleId: string, permissionId: string): Promise<string> {
-    // TODO: Check if the permission is already removed, Check user permission to remove
-    await this.rolePermissionRepository.RemoveRolePermission(roleId, permissionId);
-    return `Removed permission ${permissionId} from role ${roleId}`;
-  }
-
   async UpsertPermissions(dto: UpsertRolePermissionDto): Promise<number> {
-    // TODO: Check if the permission is already removed, Check user permission to remove
-    // Check roleId
-    // Check permission list
-    if (!dto.PermissionIds) {
-      throw new Error("PermissionIds array is required");
+    // Check permission Id is good
+    const permissionCheckList = await Promise.all(dto.PermissionIds?.map( async (id) => await this.permissionService.GetPermissionById(id)) ?? []);
+    if(!dto.PermissionIds || permissionCheckList?.some(p => p == null))
+    {
+      throw new Error("One or more permissions not found");
     }
+    const roleCheck = await this.roleService.GetRoleById(dto.RoleId);
+    if(!roleCheck)
+    {
+      throw new Error("Role not found or deleted");
+    }
+
     return await this.rolePermissionRepository.UpsertRolePermissions(dto.RoleId, dto.PermissionIds);
 
     // TODO: Find all user using the role and invalidate the token
+
+    
   }
 }

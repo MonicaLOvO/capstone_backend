@@ -74,6 +74,7 @@ export class UserService extends IUserService {
 
   async UpdateUser(dto: UpsertUserDto): Promise<string> {
     // TODO: check email still unique
+    
     let passwordHash: string | undefined;
     if (dto.Password) {
       passwordHash = await bcrypt.hash(dto.Password, SALT_ROUNDS);
