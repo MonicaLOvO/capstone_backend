@@ -5,6 +5,8 @@ import { User, UserColumns } from "../entity/User";
 import { UpsertUserDto } from "../dto/UpsertUser";
 import { RepositoryHelper } from "../../common/helper/RepositoryHelper";
 import { RequestContext } from "../../common/context/RequestContext";
+import { Department } from "../entity/Department";
+import { Role } from "../../Permission/entity/Role";
 
 @injectable()
 export class UserRepository {
@@ -93,11 +95,11 @@ export class UserRepository {
     }
 
     if (dto.DepartmentId) {
-      target.Department = { DepartmentId: dto.DepartmentId } as any;
+      target.Department = Object.assign<Department, Partial<Department>>({} as Department, { Id: dto.DepartmentId });
     }
 
     if (dto.RoleId) {
-      target.Role = { RoleId: dto.RoleId } as any;
+      target.Role = Object.assign<Role, Partial<Role>>({} as Role, { Id: dto.RoleId });
     }
 
     target.UpdatedBy = RequestContext.currentOrFail().userId ?? "";

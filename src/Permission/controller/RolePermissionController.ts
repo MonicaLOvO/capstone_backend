@@ -40,7 +40,7 @@ export class RolePermissionController {
     @Put("/replace")
     @AndPermission(PermissionModuleEnum.ROLE, PermissionActionEnum.UPDATE)
     async replacePermissions(@Body() dto: UpsertRolePermissionDto) {
-        const count = await this.rolePermissionService.ReplacePermissions(dto);
+        const count = await this.rolePermissionService.UpsertPermissions(dto);
         return new DataRespondModel<string>(`Replaced with ${count} permissions`);
     }
 

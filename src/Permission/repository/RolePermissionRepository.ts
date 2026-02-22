@@ -92,7 +92,7 @@ export class RolePermissionRepository {
     return targets.length;
   }
 
-  async ReplaceRolePermissions(roleId: string, permissionIds: string[]): Promise<number> {
+  async UpsertRolePermissions(roleId: string, permissionIds: string[]): Promise<number> {
     const existing = await this.repository.find({ where: { RoleId: roleId } });
     if (existing.length > 0) {
       await this.repository.remove(existing);

@@ -12,6 +12,8 @@ import { User } from "../../entity/User";
 import { JWT_SECRET, JWT_EXPIRES_IN, SALT_ROUNDS } from "../../../common/config/jwt.config";
 import { JwtModel } from "../../../common/model/JwtModel";
 import { RequestContext } from "../../../common/context/RequestContext";
+import { Role } from "../../../Permission/entity/Role";
+import { Department } from "../../entity/Department";
 
 export { IUserService };
 
@@ -47,6 +49,8 @@ export class UserService extends IUserService {
   }
 
   async CreateUser(dto: UpsertUserDto): Promise<string> {
+    // TODO: check username still unique
+    // TODO: check email still unique
     if(!dto.Password)
     {
       throw new Error("Password is required");
@@ -61,14 +65,15 @@ export class UserService extends IUserService {
     };
     if (dto.FirstName) userData.FirstName = dto.FirstName;
     if (dto.LastName) userData.LastName = dto.LastName;
-    if (dto.DepartmentId) userData.Department = { DepartmentId: dto.DepartmentId } as any;
-    if (dto.RoleId) userData.Role = { RoleId: dto.RoleId } as any;
+    if (dto.DepartmentId) userData.Department = Object.assign<Department, Partial<Department>>({} as Department, { Id: dto.DepartmentId });
+    if (dto.RoleId) userData.Role = Object.assign<Role, Partial<Role>>({} as Role, { Id: dto.RoleId });
 
     const user = await this.userRepository.AddUser(userData);
     return user.Id;
   }
 
   async UpdateUser(dto: UpsertUserDto): Promise<string> {
+    // TODO: check email still unique
     let passwordHash: string | undefined;
     if (dto.Password) {
       passwordHash = await bcrypt.hash(dto.Password, SALT_ROUNDS);

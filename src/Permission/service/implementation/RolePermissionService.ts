@@ -29,6 +29,7 @@ export class RolePermissionService extends IRolePermissionService {
   }
 
   async AssignPermission(dto: UpsertRolePermissionDto): Promise<string> {
+    // TODO: Check permission Id is good
     if (!dto.PermissionId) {
       throw new Error("PermissionId is required");
     }
@@ -37,6 +38,7 @@ export class RolePermissionService extends IRolePermissionService {
   }
 
   async AssignBulkPermissions(dto: UpsertRolePermissionDto): Promise<number> {
+    // Check permission Id is good
     if (!dto.PermissionIds || dto.PermissionIds.length === 0) {
       throw new Error("PermissionIds array is required");
     }
@@ -44,14 +46,20 @@ export class RolePermissionService extends IRolePermissionService {
   }
 
   async RemovePermission(roleId: string, permissionId: string): Promise<string> {
+    // TODO: Check if the permission is already removed, Check user permission to remove
     await this.rolePermissionRepository.RemoveRolePermission(roleId, permissionId);
     return `Removed permission ${permissionId} from role ${roleId}`;
   }
 
-  async ReplacePermissions(dto: UpsertRolePermissionDto): Promise<number> {
+  async UpsertPermissions(dto: UpsertRolePermissionDto): Promise<number> {
+    // TODO: Check if the permission is already removed, Check user permission to remove
+    // Check roleId
+    // Check permission list
     if (!dto.PermissionIds) {
       throw new Error("PermissionIds array is required");
     }
-    return await this.rolePermissionRepository.ReplaceRolePermissions(dto.RoleId, dto.PermissionIds);
+    return await this.rolePermissionRepository.UpsertRolePermissions(dto.RoleId, dto.PermissionIds);
+
+    // TODO: Find all user using the role and invalidate the token
   }
 }
