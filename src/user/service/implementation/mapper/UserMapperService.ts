@@ -5,13 +5,15 @@ import { DepartmentModel } from "../../../model/DepartmentModel";
 import { RoleModel } from "../../../../Permission/model/RoleModel";
 import { IUserMapperService } from "../../interface/mapper/IUserMapperService";
 import { IPermissionMapperService } from "../../../../Permission/service/interface/mapper/IPermissionMapperService";
+import { IMediaMapperService } from "../../../../media/service/interface/mapper/IMediaMapperService";
 
 export { IUserMapperService };
 
 @injectable()
 export class UserMapperService extends IUserMapperService {
     constructor(
-        @inject(IPermissionMapperService.name) private readonly permissionMapper: IPermissionMapperService
+        @inject(IPermissionMapperService.name) private readonly permissionMapper: IPermissionMapperService,
+        @inject(IMediaMapperService.name) private readonly mediaMapper: IMediaMapperService
     ) {
         super();
     }
@@ -29,6 +31,8 @@ export class UserMapperService extends IUserMapperService {
             CreatedBy: entity.CreatedBy ?? "",
             UpdatedBy: entity.UpdatedBy ?? "",
         });
+
+        model.MediaAssets = this.mediaMapper.MapEntitiesToModel(entity.MediaAssets);
 
         if (entity.Department) {
             model.Department = Object.assign<DepartmentModel, Partial<DepartmentModel>>(new DepartmentModel(), {

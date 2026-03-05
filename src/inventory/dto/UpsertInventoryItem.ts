@@ -26,10 +26,6 @@ export class UpsertInventoryItemDto {
 
     @IsString()
     @IsOptional()
-    ImageUrl?: string;
-
-    @IsString()
-    @IsOptional()
     Category?: string;
 
     @IsString()

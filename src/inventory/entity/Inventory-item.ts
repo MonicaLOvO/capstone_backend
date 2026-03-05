@@ -2,6 +2,7 @@ import { Column, Entity, OneToMany, Relation  } from "typeorm";
 import { Tracking } from "../../common/entity/Tracking";
 import { InventoryItemStatusEnum } from "../enum/InventoryItemStatusEnum";
 import { OrderItem } from "../../order/entity/OrderItem";
+import { MediaAsset } from "../../media/entity/MediaAsset";
 
 @Entity("inventory_items")
 export class InventoryItem extends Tracking {
@@ -16,9 +17,6 @@ export class InventoryItem extends Tracking {
 
     @Column({ type: "decimal", precision: 10, scale: 2})
     UnitPrice!: number;
-
-    @Column({ type: "varchar", length: 255 , nullable: true})
-    ImageUrl?: string;
 
     @Column({ type: "varchar", length: 255 , nullable: true})
     Category?: string;
@@ -37,6 +35,9 @@ export class InventoryItem extends Tracking {
 
     @OneToMany(() => OrderItem, (orderItem) => orderItem.InventoryItem)
     OrderItems!: Relation<OrderItem[]>;
+
+    @OneToMany(() => MediaAsset, (mediaAsset) => mediaAsset.InventoryItem)
+    MediaAssets!: Relation<MediaAsset[]>;
 }
 
 export const InventoryItemColumns = new Map<string, {columnName: string, columnType: string}>([
@@ -44,7 +45,6 @@ export const InventoryItemColumns = new Map<string, {columnName: string, columnT
     ["Description", {columnName: "ii.Description", columnType: "string"}],
     ["Quantity", {columnName: "ii.Quantity", columnType: "number"}],
     ["UnitPrice", {columnName: "ii.UnitPrice", columnType: "number"}],
-    ["ImageUrl", {columnName: "ii.ImageUrl", columnType: "string"}],
     ["Category", {columnName: "ii.Category", columnType: "string"}],
     ["Location", {columnName: "ii.Location", columnType: "string"}],
     ["Sku", {columnName: "ii.Sku", columnType: "string"}],

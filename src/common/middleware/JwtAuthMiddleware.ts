@@ -95,6 +95,8 @@ export class JwtAuthMiddleware implements ExpressMiddlewareInterface {
             permissions: permissions ?? [],
         });
 
+        request.authContext = context;
+        response.locals.authContext = context;
         RequestContext.run(context, () => next());
     }
 }

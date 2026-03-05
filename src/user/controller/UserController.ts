@@ -1,4 +1,4 @@
-import { JsonController, Get, Param, QueryParams, Post, Body, Delete, Put } from "routing-controllers";
+import { JsonController, Get, Param, QueryParams, Post, Body, Delete, Put, Req } from "routing-controllers";
 import { UserModel } from "../model/UserModel";
 import { IUserService } from "../service/interface/IUserService";
 import { inject, injectable } from "tsyringe";
@@ -43,6 +43,14 @@ export class UserController {
     async getCurrentUser() {
         const data = await this.userService.GetCurrentUser();
         return new DataRespondModel<UserModel>(data, "Current user retrieved successfully");
+    }
+
+    @Put("/current")
+    async updateCurrentUserProfile(@Req() req: any) {
+        const firstName = typeof req.body?.firstName === "string" ? req.body.firstName : undefined;
+        const lastName = typeof req.body?.lastName === "string" ? req.body.lastName : undefined;
+        const data = await this.userService.UpdateCurrentUserProfile(firstName, lastName);
+        return new DataRespondModel<UserModel>(data, "Current user profile updated successfully");
     }
 
     @AndPermission(PermissionModuleEnum.USER, PermissionActionEnum.READ)

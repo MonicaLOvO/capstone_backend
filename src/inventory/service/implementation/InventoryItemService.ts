@@ -6,6 +6,8 @@ import { InventoryItemModel } from "../../model/InventoryItemModel";
 import { InventoryItemSummaryModel } from "../../model/InventoryItemSummaryModel";
 import { UpsertInventoryItemDto } from "../../dto/UpsertInventoryItem";
 import { InventoryItem } from "../../entity/Inventory-item";
+import { IMediaService } from "../../../media/service/interface/IMediaService";
+import { MediaResourceTypeEnum } from "../../../media/enum/MediaResourceTypeEnum";
 
 export { IInventoryItemService };
 
@@ -13,7 +15,8 @@ export { IInventoryItemService };
 export class InventoryItemService extends IInventoryItemService {
   constructor(
     @inject(IInventoryItemMapperService.name) private readonly mapper: IInventoryItemMapperService,
-    @inject(InventoryItemRepository) private readonly inventoryItemRepository: InventoryItemRepository
+    @inject(InventoryItemRepository) private readonly inventoryItemRepository: InventoryItemRepository,
+    @inject(IMediaService.name) private readonly mediaService: IMediaService,
   ) {
     super();
   }
@@ -21,8 +24,7 @@ export class InventoryItemService extends IInventoryItemService {
   async GetInventoryItems(query?: Record<string, string>): Promise<[InventoryItemModel[], number]> {
     const entities = await this.inventoryItemRepository.GetInventoryItems(query) as InventoryItem[];
     const total = await this.inventoryItemRepository.GetInventoryItems(query, true) as number;
-    const models = entities.map(entity => this.mapper.MapEntityToModle(entity));
-    return [models, total];
+    return [entities.map(entity => this.mapper.MapEntityToModle(entity)), total];
   }
 
   
@@ -38,7 +40,8 @@ export class InventoryItemService extends IInventoryItemService {
 
   async GetInventoryItemById(id: string): Promise<InventoryItemModel | null> {
     const entity = await this.inventoryItemRepository.GetInventoryItemById(id);
-    return entity ? this.mapper.MapEntityToModle(entity) : null;
+    if (!entity) return null;
+    return this.mapper.MapEntityToModle(entity);
   }
 
   async CreateInventoryItem(dto: UpsertInventoryItemDto): Promise<string> {
@@ -62,6 +65,7 @@ export class InventoryItemService extends IInventoryItemService {
     if (!deletedId) {
       throw new Error("Failed to delete inventory item");
     }
+    // await this.mediaService.DeleteByOwner(MediaResourceTypeEnum.INVENTORY_ITEM, id, mediaId);
     return deletedId;
   }
 

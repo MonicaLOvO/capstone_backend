@@ -26,6 +26,14 @@ export class UserRepository {
       // .leftJoinAndSelect("rolePermissions.Permission", "permission", "permission.DeletedAt IS NULL")
       .where("u.DeletedAt IS NULL");
 
+    if (!getTotal) {
+      query.leftJoinAndSelect(
+        "u.MediaAssets",
+        "mediaAsset",
+        "mediaAsset.DeletedAt IS NULL",
+      );
+    }
+
     if (filterResult.Filter.length > 0) {
       for (const filter of filterResult.Filter) {
         query.andWhere(filter.FilterString, filter.FilterValues);
@@ -56,17 +64,35 @@ export class UserRepository {
   }
 
   async GetUserById(id: string): Promise<User | null> {
-    return await this.repository.findOne({
-      where: { Id: id, DeletedAt: IsNull() },
-      relations: ["Department", "Role", "Role.RolePermissions", "Role.RolePermissions.Permission"],
-    });
+    return await this.repository.createQueryBuilder("u")
+      .leftJoinAndSelect("u.Department", "department")
+      .leftJoinAndSelect("u.Role", "role", "role.DeletedAt IS NULL")
+      .leftJoinAndSelect("role.RolePermissions", "rolePermissions")
+      .leftJoinAndSelect("rolePermissions.Permission", "permission", "permission.DeletedAt IS NULL")
+      .leftJoinAndSelect(
+        "u.MediaAssets",
+        "mediaAsset",
+        "mediaAsset.DeletedAt IS NULL",
+      )
+      .where("u.Id = :id", { id })
+      .andWhere("u.DeletedAt IS NULL")
+      .getOne();
   }
 
   async GetUserByUsername(username: string): Promise<User | null> {
-    return await this.repository.findOne({
-      where: { Username: username, DeletedAt: IsNull() },
-      relations: ["Department", "Role", "Role.RolePermissions", "Role.RolePermissions.Permission"],
-    });
+    return await this.repository.createQueryBuilder("u")
+      .leftJoinAndSelect("u.Department", "department")
+      .leftJoinAndSelect("u.Role", "role", "role.DeletedAt IS NULL")
+      .leftJoinAndSelect("role.RolePermissions", "rolePermissions")
+      .leftJoinAndSelect("rolePermissions.Permission", "permission", "permission.DeletedAt IS NULL")
+      .leftJoinAndSelect(
+        "u.MediaAssets",
+        "mediaAsset",
+        "mediaAsset.DeletedAt IS NULL",
+      )
+      .where("u.Username = :username", { username })
+      .andWhere("u.DeletedAt IS NULL")
+      .getOne();
   }
 
   async GetUserByEmail(email: string): Promise<User | null> {

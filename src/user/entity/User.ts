@@ -1,7 +1,8 @@
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, Relation } from "typeorm";
 import { Tracking } from "../../common/entity/Tracking";
 import { Department } from "./Department";
 import { Role } from "../../Permission/entity/Role";
+import { MediaAsset } from "../../media/entity/MediaAsset";
 
 @Entity("users")
 export class User extends Tracking {
@@ -30,6 +31,9 @@ export class User extends Tracking {
 
     @Column({ type: "boolean", default: true })
     IsActive!: boolean;
+
+    @OneToMany(() => MediaAsset, (mediaAsset) => mediaAsset.User)
+    MediaAssets!: Relation<MediaAsset[]>;
 }
 
 export const UserColumns = new Map<string, { columnName: string; columnType: string }>([

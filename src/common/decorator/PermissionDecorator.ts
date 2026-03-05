@@ -13,6 +13,25 @@ interface PermissionRequirement {
     action: PermissionActionEnum;
 }
 
+type RequestLike = {
+    authContext?: {
+        permissions?: Array<{ module: PermissionModuleEnum; action: PermissionActionEnum }>;
+    };
+    headers?: Record<string, unknown>;
+    method?: string;
+    path?: string;
+};
+
+function tryExtractRequestArg(args: any[]): RequestLike | null {
+    for (const arg of args) {
+        if (!arg || typeof arg !== "object") continue;
+        const candidate = arg as RequestLike;
+        if (candidate.authContext) return candidate;
+        if (candidate.headers && candidate.method) return candidate;
+    }
+    return null;
+}
+
 function applyPermissionGuard(target: object, propertyKey: string | symbol, descriptor: PropertyDescriptor): void {
     if (Reflect.getMetadata(PERMISSION_WRAPPED_KEY, target, propertyKey)) {
         return;
@@ -22,10 +41,12 @@ function applyPermissionGuard(target: object, propertyKey: string | symbol, desc
     const originalMethod = descriptor.value;
 
     descriptor.value = async function (...args: any[]) {
-        const context = RequestContext.current();
+        const requestArg = tryExtractRequestArg(args);
+        const context = RequestContext.current() ?? requestArg?.authContext;
         if (!context) {
             throw new ForbiddenError("No authentication context — access denied");
         }
+        const permissions = context.permissions ?? [];
 
         const andPerms: PermissionRequirement[] =
             Reflect.getMetadata(AND_PERMISSION_KEY, target, propertyKey) ?? [];
@@ -33,7 +54,7 @@ function applyPermissionGuard(target: object, propertyKey: string | symbol, desc
             Reflect.getMetadata(OR_PERMISSION_KEY, target, propertyKey) ?? [];
 
         for (const required of andPerms) {
-            const found = context.permissions.some(
+            const found = permissions.some(
                 (p) => p.module === required.module && p.action === required.action
             );
             if (!found) {
@@ -45,7 +66,7 @@ function applyPermissionGuard(target: object, propertyKey: string | symbol, desc
 
         if (orPerms.length > 0) {
             const hasAny = orPerms.some((required) =>
-                context.permissions.some(
+                permissions.some(
                     (p) => p.module === required.module && p.action === required.action
                 )
             );

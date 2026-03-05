@@ -14,6 +14,8 @@ import { JwtModel } from "../../../common/model/JwtModel";
 import { RequestContext } from "../../../common/context/RequestContext";
 import { Role } from "../../../Permission/entity/Role";
 import { Department } from "../../entity/Department";
+import { IMediaService } from "../../../media/service/interface/IMediaService";
+import { MediaResourceTypeEnum } from "../../../media/enum/MediaResourceTypeEnum";
 
 export { IUserService };
 
@@ -22,6 +24,7 @@ export class UserService extends IUserService {
   constructor(
     @inject(IUserMapperService.name) private readonly mapper: IUserMapperService,
     @inject(UserRepository) private readonly userRepository: UserRepository,
+    @inject(IMediaService.name) private readonly mediaService: IMediaService,
   ) {
     super();
   }
@@ -29,13 +32,13 @@ export class UserService extends IUserService {
   async GetUsers(query?: Record<string, string>): Promise<[UserModel[], number]> {
     const entities = await this.userRepository.GetUsers(query) as User[];
     const total = await this.userRepository.GetUsers(query, true) as number;
-    const models = entities.map(entity => this.mapper.MapEntityToModel(entity));
-    return [models, total];
+    return [entities.map(entity => this.mapper.MapEntityToModel(entity)), total];
   }
 
   async GetUserById(id: string): Promise<UserModel | null> {
     const entity = await this.userRepository.GetUserById(id);
-    return entity ? this.mapper.MapEntityToModel(entity) : null;
+    if (!entity) return null;
+    return this.mapper.MapEntityToModel(entity);
   }
 
   async GetCurrentUser(): Promise<UserModel | null> {
@@ -44,8 +47,24 @@ export class UserService extends IUserService {
     const entity = await this.userRepository.GetUserById(context.userId);
     if (!entity) return null;
 
-    const model = this.mapper.MapEntityToModel(entity);
-    return model;
+    return this.mapper.MapEntityToModel(entity);
+  }
+
+  async UpdateCurrentUserProfile(firstName?: string, lastName?: string): Promise<UserModel | null> {
+    const context = RequestContext.currentOrFail();
+    const updateDto: UpsertUserDto = {
+      Id: context.userId,
+    };
+    if (firstName !== undefined) {
+      updateDto.FirstName = firstName;
+    }
+    if (lastName !== undefined) {
+      updateDto.LastName = lastName;
+    }
+
+    await this.userRepository.UpdateUser(updateDto);
+
+    return this.GetCurrentUser();
   }
 
   async CreateUser(dto: UpsertUserDto): Promise<string> {
@@ -92,6 +111,7 @@ export class UserService extends IUserService {
     if (!deletedId) {
       throw new Error("Failed to delete user");
     }
+    // await this.mediaService.DeleteByOwner(MediaResourceTypeEnum.USER, id);
     return deletedId;
   }
 
@@ -149,7 +169,6 @@ export class UserService extends IUserService {
     };
     const token = jwt.sign(payload, JWT_SECRET, signOptions);
 
-    const userModel = this.mapper.MapEntityToModel(user);
-    return { token, user: userModel };
+    return { token, user: this.mapper.MapEntityToModel(user) };
   }
 }
