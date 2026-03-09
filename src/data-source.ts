@@ -10,7 +10,8 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME || "root",
   password: process.env.DB_PASSWORD || "password",
   database: process.env.DB_NAME || "CapstoneDatabase",
-  synchronize: process.env.NODE_ENV !== "production", // Auto-sync schema in development only
+  // synchronize: process.env.NODE_ENV !== "production", // Auto-sync schema in development only
+  synchronize: false,
   logging: process.env.NODE_ENV === "development",
   entities: [__dirname + "/**/entity/**/*.ts", 
     __dirname + "/**/entity/**/*.js",
