@@ -9,11 +9,43 @@ import { JwtAuthMiddleware } from "./common/middleware/JwtAuthMiddleware";
 import { RequestContext } from "./common/context/RequestContext";
 import { runSeeds } from "./common/seed/seed-runner";
 
+// Morgan + file logging imports
+import morgan from "morgan";
+import fs from "fs";
+import path from "path";
+import { logInfo } from "./logging/logger";
 
 
 dotenv.config();
 
 const app = express();
+
+// ---------- Logging Setup  ----------
+const logDirectory = path.join(process.cwd(), "logs");
+
+if (!fs.existsSync(logDirectory)) {
+  fs.mkdirSync(logDirectory);
+}
+
+const accessLogStream = fs.createWriteStream(
+  path.join(logDirectory, "access.log"),
+  { flags: "a" }
+);
+
+// Dev = console, Prod = file
+if (process.env.NODE_ENV === "production") {
+  app.use(morgan("combined", { stream: accessLogStream }));
+} else {
+  app.use(morgan("dev"));
+}
+// ---------------------------------------------
+
+// guaranteed test route (logs will show in terminal or file)
+app.get("/__ping", (req: Request, res: Response) => {
+  res.send("pong");
+});
+
+// end of loggging setup || for testing 
 
 // Middleware
 app.use(cors({
@@ -66,5 +98,9 @@ AppDataSource.initialize()
     console.error("Error during database initialization:", error);
     process.exit(1);
   });
+
+
+  logInfo("test");
+
 
 
