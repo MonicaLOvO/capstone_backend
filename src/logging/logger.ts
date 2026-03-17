@@ -1,10 +1,11 @@
 import fs from "fs";
 import path from "path";
 
-const logDir = path.join(process.cwd(), "logs");
+const logDir = process.env.LOG_DIR || path.join(process.cwd(), "logs");
+
 
 if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir);
+  fs.mkdirSync(logDir, { recursive: true });
 }
 
 const appLogStream = fs.createWriteStream(

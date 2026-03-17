@@ -41,17 +41,41 @@ app.get("/__ping", (req: Request, res: Response) => {
   res.send("pong");
 });
 
+// Body parsing middleware
+// Note: routing-controllers also has built-in body parsing, but we can use express.json() for any custom routes or middleware before controllers
+// If you have custom routes that need body parsing before hitting controllers, keep this. Otherwise, routing-controllers will handle it for controller routes.
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
+
 // Middleware
+// CORS setup with dynamic origins from environment variable
+// use a comma-separated list in .env, e.g. CORS_ORIGINS=http://localhost:3000,http://example.com
+const allowedOrigins = (process.env.CORS_ORIGINS || "http://localhost:3000")
+  .split(",")
+  .map((origin) => origin.trim());
+
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: (origin, callback) => {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
 
 
-const PORT = process.env.PORT || 4000;
+const PORT = parseInt(process.env.PORT || "4000", 10);
 
 // Health check route – your Next.js app can use this to verify backend is up
 app.get("/api/health", (req: Request, res: Response) => {
@@ -79,16 +103,12 @@ AppDataSource.initialize()
     });
 
     app.listen(PORT, () => {
-      console.log(`Backend listening on http://localhost:${PORT}`);
+      console.log(`Backend listening on ${PORT}`);
     });
   })
   .catch((error) => {
     console.error("Error during database initialization:", error);
     process.exit(1);
   });
-
-
-
-logInfo("test");
 
 

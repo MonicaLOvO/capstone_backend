@@ -1,10 +1,10 @@
 import { DataSource } from "typeorm";
 import dotenv from "dotenv";
-
+import path from "path/win32";
 dotenv.config();
 
 export const AppDataSource = new DataSource({
-  type: process.env.DB_TYPE as "mysql" | "mariadb" | "postgres" | "mongodb" ?? "mysql",
+  type: (process.env.DB_TYPE || "mysql") as "mysql" | "mariadb" | "postgres",
   host: process.env.DB_HOST || "localhost",
   port: parseInt(process.env.DB_PORT || "3308", 10),
   username: process.env.DB_USERNAME || "root",
@@ -20,7 +20,8 @@ export const AppDataSource = new DataSource({
      __dirname + "/entity/*.ts",
      __dirname + "/entity/*.js"],
   // migrations: [__dirname + "/migrations/**/*.ts", __dirname + "/migrations/**/*.js"],
-  subscribers: [__dirname + "/subscribers/**/*.ts", __dirname + "/subscribers/**/*.js"],
-  // migrations: [__dirname + "/migrations/**/*{.ts,.js}"],
+  // subscribers: [__dirname + "/subscribers/**/*.ts", __dirname + "/subscribers/**/*.js"],
+  subscribers: [path.join(__dirname, "subscribers", "**", "*.{ts,js}")],
+  migrations: [__dirname + "/migrations/**/*{.ts,.js}"],
 });
 
