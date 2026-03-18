@@ -9,7 +9,7 @@ import { setupRoutingControllersContainer } from "./container/tsyringe-container
  * This should be called once when the application starts
  */
 export async function setupContainer(): Promise<void> {
-  // Register the DataSource as a singleton
+  // Register the DataSource for DB access as a singleton 
   container.registerInstance("DataSource", AppDataSource);
   
   // Automatically discover and register all services and repositories
