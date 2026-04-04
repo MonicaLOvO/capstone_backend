@@ -4,7 +4,6 @@ import { AppDataSource } from "../../data-source";
 import { InventoryItem, InventoryItemColumns } from "../entity/Inventory-item";
 import { UpsertInventoryItemDto } from "../dto/UpsertInventoryItem";
 import { InventoryItemStatusEnum } from "../enum/InventoryItemStatusEnum";
-import { QueryFilterResult } from "../../common/model/QueryFilterResult";
 import { RepositoryHelper } from "../../common/helper/RepositoryHelper";
 
 
@@ -22,6 +21,14 @@ export class InventoryItemRepository {
     
     const query = this.repository.createQueryBuilder("ii")
     .where("ii.DeletedAt IS NULL");
+
+    if (!getTotal) {
+      query.leftJoinAndSelect(
+        "ii.MediaAssets",
+        "mediaAsset",
+        "mediaAsset.DeletedAt IS NULL",
+      );
+    }
 
     // Apply filters
     if(filterResult.Filter.length > 0)
@@ -54,7 +61,15 @@ export class InventoryItemRepository {
   }
 
   async GetInventoryItemById(id: string): Promise<InventoryItem | null> {
-    return await this.repository.findOne({ where: { Id: id, DeletedAt: IsNull() } });
+    return await this.repository.createQueryBuilder("ii")
+      .leftJoinAndSelect(
+        "ii.MediaAssets",
+        "mediaAsset",
+        "mediaAsset.DeletedAt IS NULL",
+      )
+      .where("ii.Id = :id", { id })
+      .andWhere("ii.DeletedAt IS NULL")
+      .getOne();
   }
 
   async AddInventoryItem(dto: UpsertInventoryItemDto): Promise<string> {
@@ -63,8 +78,6 @@ export class InventoryItemRepository {
       Description: dto.Description ?? "",
       Quantity: dto.Quantity ?? 0,
       UnitPrice: dto.UnitPrice ?? 0,
-      QrCode: dto.QrCodeValue ?? "",
-      ImageUrl: dto.ImageUrl ?? "",
       Category: dto.Category ?? "",
       Location: dto.Location ?? "",
       Sku: dto.Sku ?? "",
@@ -87,8 +100,6 @@ export class InventoryItemRepository {
       Description: dto.Description ?? "",
       Quantity: dto.Quantity ?? 0,
       UnitPrice: dto.UnitPrice ?? 0,
-      QrCode: dto.QrCodeValue ?? "",
-      ImageUrl: dto.ImageUrl ?? "",
       Category: dto.Category ?? "",
       Location: dto.Location ?? "",
       Sku: dto.Sku ?? "",
@@ -98,6 +109,31 @@ export class InventoryItemRepository {
 
     const result = await this.repository.save(target);
     return result.Id;
+  }
+
+  async GetInventoryItemsByProductName(productName: string): Promise<{ items: InventoryItem[], totalPrice: number, totalStock: number }> {
+    const items = await this.repository.createQueryBuilder("ii")
+      .leftJoinAndSelect(
+        "ii.MediaAssets",
+        "mediaAsset",
+        "mediaAsset.DeletedAt IS NULL",
+      )
+      .where("ii.DeletedAt IS NULL")
+      .andWhere("ii.ItemName LIKE :name", { name: `%${productName}%` })
+      .getMany();
+
+    const aggregates = await this.repository.createQueryBuilder("ii")
+      .select("COALESCE(SUM(ii.UnitPrice * ii.Quantity), 0)", "totalPrice")
+      .addSelect("COALESCE(SUM(ii.Quantity), 0)", "totalStock")
+      .where("ii.DeletedAt IS NULL")
+      .andWhere("ii.ItemName LIKE :name", { name: `%${productName}%` })
+      .getRawOne();
+
+    return {
+      items,
+      totalPrice: parseFloat(aggregates?.totalPrice ?? "0"),
+      totalStock: parseInt(aggregates?.totalStock ?? "0", 10),
+    };
   }
 
   async DeleteInventoryItem(id: string): Promise<string> {

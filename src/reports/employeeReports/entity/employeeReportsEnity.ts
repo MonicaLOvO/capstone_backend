@@ -5,11 +5,11 @@ import { EmployeeReportTypeEnum } from "../enum/employeeReportEnum";
 @Entity("employee_reports")
 export class EmployeeReport extends Tracking {
   // Primary Key
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
+  // @PrimaryGeneratedColumn("uuid")
+  // id!: string;
 
   // Employee Info
-  @Index()
+ 
   @Column({ type: "varchar", length: 255 })
   employeeId!: string;
 
@@ -20,14 +20,13 @@ export class EmployeeReport extends Tracking {
   department?: string;
 
   // Report Classification
-  @Index()
+  
   @Column({
     type: "enum",
     enum: EmployeeReportTypeEnum,
   })
   reportType!: EmployeeReportTypeEnum;
 
-  @Index()
   @Column({  type: "date" })
   reportDate!: Date;
 

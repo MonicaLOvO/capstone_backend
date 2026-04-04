@@ -11,7 +11,7 @@ export class EmployeeReportMapperService implements IEmployeeReportMapperService
         // EmployeeReportModel is defined as an interface, not a class, so we
         // build a plain object rather than trying to instantiate it.
         const model: EmployeeReportModel = {
-            id: entity.id,
+            id: entity.Id,
             employeeId: entity.employeeId,
             employeeName: entity.employeeName,
             department: entity.department ?? "",

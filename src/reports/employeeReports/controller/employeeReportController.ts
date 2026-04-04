@@ -33,7 +33,7 @@ export class EmployeeReportController {
 
     @Put("/:id")
     async updateEmployeeReport(@Param("id") id: string, @Body() dto: UpsertEmployeeReportDto) {
-        dto.id = id;
+        dto.Id = id;
         const data = await this.employeeReportService.UpdateEmployeeReport(dto);    
         return new DataRespondModel<string>(data);
     }

@@ -1,5 +1,6 @@
 import { InventoryItemStatusEnum } from "../enum/InventoryItemStatusEnum";
 import { OrderItemModel } from "../../order/model/OrderItemModel";
+import { MediaModel } from "../../media/model/MediaModel";
 
 export class InventoryItemModel {
     Id!: string;
@@ -7,8 +8,7 @@ export class InventoryItemModel {
     Description?: string;
     Quantity?: number;
     UnitPrice?: number;
-    QrCodeValue?: string;
-    ImageUrl?: string;
+    MediaAssets?: MediaModel[];
     Category?: string;
     Location?: string;
     Sku?: string;

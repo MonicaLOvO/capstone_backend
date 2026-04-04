@@ -13,15 +13,11 @@ export class EmployeeReportRepository {
     this.repository = AppDataSource.getRepository(EmployeeReport);
   }
 
-  // overloads allow callers to get a strongly‑typed result based on the flag
   async GetEmployeeReports(
     queryParams?: Record<string, string>,
     getTotal?: false
   ): Promise<EmployeeReport[]>;
 
-  // when asking for a count we still accept undefined for the query,
-  // but the parameter cannot be marked optional because it comes before
-  // the required `true` flag.
   async GetEmployeeReports(
     queryParams: Record<string, string> | undefined,
     getTotal: true
@@ -40,14 +36,12 @@ export class EmployeeReportRepository {
       .createQueryBuilder("er")
       .where("er.DeletedAt IS NULL");
 
-    // Apply filters
     if (filterResult.Filter.length > 0) {
       for (const filter of filterResult.Filter) {
         query.andWhere(filter.FilterString, filter.FilterValues);
       }
     }
 
-    // Apply order by
     if (!getTotal && filterResult.OrderBy && filterResult.OrderBy.OrderByString) {
       query.orderBy(
         filterResult.OrderBy.OrderByString ?? "",
@@ -55,7 +49,6 @@ export class EmployeeReportRepository {
       );
     }
 
-    // Apply pagination
     if (
       !getTotal &&
       filterResult.Pagination &&
@@ -70,20 +63,18 @@ export class EmployeeReportRepository {
 
     if (getTotal) {
       return await query.getCount();
-    } else {
-      return await query.getMany();
     }
+
+    return await query.getMany();
   }
 
   async GetEmployeeReportById(id: string): Promise<EmployeeReport | null> {
     return await this.repository.findOne({
-      where: { id, DeletedAt: IsNull() },
+      where: { Id: id, DeletedAt: IsNull() },
     });
   }
 
   async AddEmployeeReport(dto: UpsertEmployeeReportDto): Promise<string> {
-    // With "exactOptionalPropertyTypes": true, we must not pass undefined
-    // for optional properties. If reportType is required on create, enforce it.
     if (!dto.reportType) {
       throw new Error("reportType is required");
     }
@@ -92,7 +83,7 @@ export class EmployeeReportRepository {
       employeeId: dto.employeeId ?? "",
       employeeName: dto.employeeName ?? "",
       department: dto.department ?? "",
-      reportType: dto.reportType, // guaranteed not undefined now
+      reportType: dto.reportType,
       reportDate: dto.reportDate ? new Date(dto.reportDate) : new Date(),
       reportedBy: dto.reportedBy ?? "",
       description: dto.description ?? "",
@@ -102,25 +93,18 @@ export class EmployeeReportRepository {
     });
 
     const result = await this.repository.save(newReport);
-    return result?.id ?? "";
+    return result?.Id ?? "";
   }
 
   async UpdateEmployeeReport(dto: UpsertEmployeeReportDto): Promise<string> {
     const target = await this.repository.findOne({
-      where: { id: dto.id ?? "", DeletedAt: IsNull() },
+      where: { Id: dto.Id ?? "", DeletedAt: IsNull() },
     });
 
     if (!target) {
       throw new Error("Employee report not found");
     }
 
-    // Update ONLY the fields that are actually provided (avoid writing undefined)
-    // ... is used to conditionally add properties to the object being passed to Object.assign
-    //     If dto.employeeId !== undefined
-    // → create { employeeId: dto.employeeId }
-
-    // Otherwise
-    // → create {} (empty object)
     Object.assign(target, {
       ...(dto.employeeId !== undefined ? { employeeId: dto.employeeId } : {}),
       ...(dto.employeeName !== undefined ? { employeeName: dto.employeeName } : {}),
@@ -135,12 +119,12 @@ export class EmployeeReportRepository {
     });
 
     const result = await this.repository.save(target);
-    return result.id;
+    return result.Id;
   }
 
   async DeleteEmployeeReport(id: string): Promise<string> {
     const target = await this.repository.findOne({
-      where: { id, DeletedAt: IsNull() },
+      where: { Id: id, DeletedAt: IsNull() },
     });
 
     if (!target) {
@@ -149,6 +133,6 @@ export class EmployeeReportRepository {
 
     target.DeletedAt = new Date();
     const result = await this.repository.save(target);
-    return result.id;
+    return result.Id;
   }
 }
