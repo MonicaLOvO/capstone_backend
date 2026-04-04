@@ -15,7 +15,7 @@ export class OrderMapperService extends IOrderMapperService {
             OrderType: entity.OrderType ?? "",
             OrderDate: entity.OrderDate ?? new Date(),
             OrderStatus: entity.OrderStatus,
-            OrderCompletedDate: entity.OrderCompletedDate ?? new Date(),
+            ...(entity.OrderCompletedDate ? { OrderCompletedDate: entity.OrderCompletedDate } : {}),
             OrderItems: entity.OrderItems?.map(orderItem => this.MapEntityToOrderItemModel(orderItem, entity.Id)) ?? [],
         });
         return model;

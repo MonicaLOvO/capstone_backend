@@ -53,7 +53,6 @@ export class MediaService extends IMediaService {
       mediaAsset.InventoryItemId = ownerId;
       mediaAsset.UserId = null;
     }
-
     mediaAsset.PublicId = uploaded.public_id;
     mediaAsset.SecureUrl = uploaded.secure_url;
     mediaAsset.Version = uploaded.version;
@@ -105,7 +104,6 @@ export class MediaService extends IMediaService {
         }
         return;
       }
-
       case MediaResourceTypeEnum.INVENTORY_ITEM: {
         const item = await this.inventoryRepository.GetInventoryItemById(ownerId);
         if (!item) {
@@ -113,7 +111,6 @@ export class MediaService extends IMediaService {
         }
         return;
       }
-
       default:
         throw new Error("Unsupported media owner type");
     }
@@ -140,7 +137,6 @@ export class MediaService extends IMediaService {
             reject(error ?? new Error("Cloudinary upload failed"));
             return;
           }
-
           resolve(result);
         },
       );

@@ -28,14 +28,14 @@ export class MediaAsset extends Tracking {
   @Column({ type: "int", nullable: true })
   Height?: number;
 
-  @Column({ type: "uuid", nullable: true })
+  @Column({ type: "varchar", length: 36, nullable: true })
   UserId?: string | null;
 
   @ManyToOne(() => User, (user) => user.MediaAssets, { nullable: true, onDelete: "SET NULL" })
   @JoinColumn({ name: "UserId" })
   User?: Relation<User>;
 
-  @Column({ type: "uuid", nullable: true })
+  @Column({ type: "varchar", length: 36, nullable: true })
   InventoryItemId?: string | null;
 
   @ManyToOne(() => InventoryItem, (inventoryItem) => inventoryItem.MediaAssets, { nullable: true, onDelete: "SET NULL" })

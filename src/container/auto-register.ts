@@ -122,6 +122,7 @@ async function registerClassFromFile(filePath: string, basePath: string): Promis
           exportName.endsWith("Repository") ||
           exportName.endsWith("Service") ||
           exportName.endsWith("Controller");
+
         if (isLikelyInjectable) {
           classExports.push({ name: exportName, cls: exported });
         }
@@ -131,7 +132,6 @@ async function registerClassFromFile(filePath: string, basePath: string): Promis
     // Second pass: register implementations and abstract class -> implementation bindings
     for (const { name: exportName, cls: exported } of classExports) {
       const interfaceToken = "I" + exportName;
-      
       if (exportName.endsWith("Service") || exportName.endsWith("Repository")) {
         // Abstract class (IX) -> Implementation (X): for @inject(IX) and @inject(IX.name)
         if (exportName.startsWith("I")) {
@@ -142,19 +142,19 @@ async function registerClassFromFile(filePath: string, basePath: string): Promis
             // Also register string token (IX.name) for @inject(IInventoryItemService.name)
             container.registerSingleton(exported.name, implementation);
             // eslint-disable-next-line no-console
-            console.log(`✓ Auto-registered: ${exportName} -> ${implementationName}`);
+            console.log(`✓ Auto-registered (Service): ${exportName} -> ${implementationName}`);
           }
-        } else {
-          // Implementation (X): register string token and class alias
+        } else if (!module[interfaceToken]) {
+          // Only register if the interface wasn't already handled above
           container.registerSingleton(interfaceToken, exported);
           container.register(exported, { useToken: interfaceToken });
           // eslint-disable-next-line no-console
-          console.log(`✓ Auto-registered: ${interfaceToken} -> ${exportName}`);
+          console.log(`✓ Auto-registered (Repository): ${interfaceToken} -> ${exportName}`);
         }
       } else {
         container.registerSingleton(exportName, exported);
         // eslint-disable-next-line no-console
-        console.log(`✓ Auto-registered: ${exportName}`);
+        console.log(`✓ Auto-registered (Controller): ${exportName}`);
       }
     }
   } catch (error) {
