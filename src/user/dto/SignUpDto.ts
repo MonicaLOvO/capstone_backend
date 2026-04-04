@@ -1,4 +1,4 @@
-import { IsEmail, IsOptional, IsString, MinLength, Equals } from "class-validator";
+import { IsEmail, IsOptional, IsString, MinLength, Equals, IsNotEmpty } from "class-validator";
 import { IsRealEmailDomain } from "../../validator/IsRealEmailDomain.decorator";
 
 export class SignUpDto {
@@ -6,7 +6,6 @@ export class SignUpDto {
   Username!: string;
 
   @IsEmail()
-  they
   @IsRealEmailDomain({ message: "Email domain cannot receive email" })
   Email!: string;
 
