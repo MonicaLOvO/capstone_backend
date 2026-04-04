@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { Tracking } from "../../common/entity/Tracking";
-import { InventoryItem } from "../../inventory/entity/Inventory-item";
+import { InventoryItem } from "../../inventory/entity/Inventory-item"
 import { Order } from "./Order";
 
 @Entity("order_items")

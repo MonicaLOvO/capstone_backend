@@ -1,5 +1,5 @@
 import { inject, injectable } from "tsyringe";
-import type { UploadApiResponse } from "cloudinary";
+import type { UploadApiErrorResponse, UploadApiResponse } from "cloudinary";
 import cloudinary from "../../../common/config/cloudinary";
 import { IMediaService, type MediaUploadFile } from "../interface/IMediaService";
 import { MediaResourceTypeEnum } from "../../enum/MediaResourceTypeEnum";
@@ -67,7 +67,11 @@ export class MediaService extends IMediaService {
     return this.mediaMapperService.MapEntityToModel(saved);
   }
 
-  async DeleteByOwner(ownerType: MediaResourceTypeEnum, ownerId: string, mediaId: string): Promise<void> {
+  async DeleteByOwner(
+    ownerType: MediaResourceTypeEnum,
+    ownerId: string,
+    mediaId: string,
+  ): Promise<void> {
     const existing = await this.mediaRepository.GetByOwner(ownerType, ownerId);
     if (!existing || existing.length === 0) {
       return;
@@ -88,7 +92,10 @@ export class MediaService extends IMediaService {
     await this.mediaRepository.Save(media);
   }
 
-  private async ensureOwnerExists(ownerType: MediaResourceTypeEnum, ownerId: string): Promise<void> {
+  private async ensureOwnerExists(
+    ownerType: MediaResourceTypeEnum,
+    ownerId: string,
+  ): Promise<void> {
     switch (ownerType) {
       case MediaResourceTypeEnum.USER: {
         const user = await this.userRepository.GetUserById(ownerId);
@@ -109,16 +116,23 @@ export class MediaService extends IMediaService {
     }
   }
 
-  private uploadToCloudinary(fileBuffer: Buffer, ownerType: MediaResourceTypeEnum, ownerId: string): Promise<UploadApiResponse> {
+  private uploadToCloudinary(
+    fileBuffer: Buffer,
+    ownerType: MediaResourceTypeEnum,
+    ownerId: string,
+  ): Promise<UploadApiResponse> {
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
-          folder: `capstone/${ownerType.toLowerCase()}`,
+          folder: `capstone/${ownerType.toLowerCase()}/${ownerId}`,
           use_filename: false,
           unique_filename: true,
           resource_type: "image",
         },
-        (error, result) => {
+        (
+          error: UploadApiErrorResponse | undefined,
+          result: UploadApiResponse | undefined,
+        ) => {
           if (error || !result) {
             reject(error ?? new Error("Cloudinary upload failed"));
             return;

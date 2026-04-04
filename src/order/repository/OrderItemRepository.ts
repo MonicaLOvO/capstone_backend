@@ -5,7 +5,7 @@ import { OrderItem, OrderItemColumns } from "../entity/OrderItem";
 import { UpsertOrderItemDto } from "../dto/UpsertOrderItemDto";
 import { RepositoryHelper } from "../../common/helper/RepositoryHelper";
 import { Order } from "../entity/Order";
-import { InventoryItem } from "../../inventory/entity/Inventory-item";
+import { InventoryItem } from "../../inventory/entity/Inventory-item"
 
 @injectable()
 export class OrderItemRepository {

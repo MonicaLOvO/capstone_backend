@@ -2,46 +2,81 @@ import "reflect-metadata";
 import express, { type Request, type Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { useExpressServer, type Action } from "routing-controllers";
+import { Action, useExpressServer } from "routing-controllers";
 import { AppDataSource } from "./data-source";
 import { setupContainer } from "./container";
-import { JwtAuthMiddleware } from "./common/middleware/JwtAuthMiddleware";
-import { RequestContext } from "./common/context/RequestContext";
+
+import morgan from "morgan";
+import fs from "fs";
+import path from "path";
 import { runSeeds } from "./common/seed/seed-runner";
-
-
+import { RequestContext } from "./common/context/RequestContext";
+import { JwtAuthMiddleware } from "./common/middleware/JwtAuthMiddleware";
 
 dotenv.config();
 
 const app = express();
 
-// Middleware
-app.use(cors({
-  origin: "http://localhost:3000",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}));
-// Note: Do NOT add express.json() here - routing-controllers adds its own body parser.
-// Having both causes "stream is not readable" because the stream gets consumed twice.
+const logDirectory = path.join(process.cwd(), "logs");
 
-const PORT = process.env.PORT || 4000;
+if (!fs.existsSync(logDirectory)) {
+  fs.mkdirSync(logDirectory);
+}
 
-// Health check route – your Next.js app can use this to verify backend is up
-app.get("/api/health", (req: Request, res: Response) => {
+const accessLogStream = fs.createWriteStream(
+  path.join(logDirectory, "access.log"),
+  { flags: "a" }
+);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(morgan("combined", { stream: accessLogStream }));
+} else {
+  app.use(morgan("dev"));
+}
+
+app.get("/__ping", (_req: Request, res: Response) => {
+  res.send("pong");
+});
+
+const allowedOrigins = (process.env.CORS_ORIGINS || "http://localhost:3000")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
+);
+
+app.options(/.*/, cors());
+
+const PORT = parseInt(process.env.PORT || "4000", 10);
+
+app.get("/api/health", (_req: Request, res: Response) => {
   res.json({ status: "ok", service: "capstone-backend" });
 });
 
-// Initialize database connection and DI container
 AppDataSource.initialize()
+
   .then(async () => {
-    // eslint-disable-next-line no-console
     console.log("Database connection established successfully");
-    
-    // Initialize dependency injection container
+
     await setupContainer();
-    
-    // Setup routing-controllers to automatically discover and register controllers
-    useExpressServer(app, {
+
+        useExpressServer(app, {
       controllers: [
         __dirname + "/**/controller/**/*.ts",
         __dirname + "/**/controller/**/*.js",
@@ -53,18 +88,14 @@ AppDataSource.initialize()
       plainToClassTransformOptions: { enableImplicitConversion: true },
       defaultErrorHandler: true,
     });
+ 
+    await runSeeds(AppDataSource); 
 
-    await runSeeds(AppDataSource);
-    
     app.listen(PORT, () => {
-      // eslint-disable-next-line no-console
-      console.log(`Backend listening on http://localhost:${PORT}`);
+      console.log(`Backend listening on ${PORT}`);
     });
   })
   .catch((error) => {
-    // eslint-disable-next-line no-console
     console.error("Error during database initialization:", error);
     process.exit(1);
   });
-
-
